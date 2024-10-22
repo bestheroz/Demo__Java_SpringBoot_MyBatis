@@ -3,7 +3,7 @@ package com.github.bestheroz.standard.common.enums;
 import lombok.Getter;
 
 @Getter
-public enum UserTypeEnum {
+public enum UserTypeEnum implements ValueEnum {
   ADMIN("admin"),
   USER("user");
 

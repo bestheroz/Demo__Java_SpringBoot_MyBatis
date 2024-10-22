@@ -1,5 +1,6 @@
 package com.github.bestheroz.standard.common.mybatis;
 
+import com.github.bestheroz.standard.common.enums.ValueEnum;
 import com.github.bestheroz.standard.common.util.LogUtils;
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
@@ -360,6 +361,9 @@ public class SqlCommand {
         //          Integer.parseInt(String.valueOf((instant).toEpochMilli() / 1000)));
       }
       case Enum<?> enum1 -> {
+        if (enum1 instanceof ValueEnum valueEnum) {
+          return "'" + valueEnum.getValue() + "'";
+        }
         return "'" + enum1.name() + "'";
       }
       case List<?> list -> {

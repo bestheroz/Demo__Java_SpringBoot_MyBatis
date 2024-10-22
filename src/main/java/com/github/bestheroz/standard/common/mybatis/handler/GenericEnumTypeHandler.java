@@ -1,10 +1,11 @@
 package com.github.bestheroz.standard.common.mybatis.handler;
 
+import com.github.bestheroz.standard.common.enums.ValueEnum;
 import java.sql.*;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
 
-public class GenericEnumTypeHandler<E extends Enum<E>> extends BaseTypeHandler<E> {
+public class GenericEnumTypeHandler<E extends ValueEnum> extends BaseTypeHandler<E> {
 
   private final Class<E> type;
 
@@ -19,7 +20,7 @@ public class GenericEnumTypeHandler<E extends Enum<E>> extends BaseTypeHandler<E
     if (parameter == null) {
       ps.setNull(i, jdbcType.TYPE_CODE);
     } else {
-      ps.setString(i, parameter.name());
+      ps.setString(i, parameter.getValue());
     }
   }
 
@@ -45,7 +46,7 @@ public class GenericEnumTypeHandler<E extends Enum<E>> extends BaseTypeHandler<E
     if (value == null) return null;
     try {
       for (E enumConstant : type.getEnumConstants()) {
-        if (enumConstant.name().equalsIgnoreCase(value)) {
+        if (enumConstant.getValue().equals(value)) {
           return enumConstant;
         }
       }

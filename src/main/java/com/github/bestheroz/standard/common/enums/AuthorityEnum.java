@@ -3,7 +3,7 @@ package com.github.bestheroz.standard.common.enums;
 import lombok.Getter;
 
 @Getter
-public enum AuthorityEnum {
+public enum AuthorityEnum implements ValueEnum {
   ADMIN_VIEW("ADMIN_VIEW"),
   ADMIN_EDIT("ADMIN_EDIT"),
   USER_VIEW("USER_VIEW"),

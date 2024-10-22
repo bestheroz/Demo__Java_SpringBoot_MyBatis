@@ -3,6 +3,7 @@ package com.github.bestheroz.demo.admin;
 import com.github.bestheroz.demo.entity.Admin;
 import com.github.bestheroz.standard.common.dto.IdCreatedUpdatedDto;
 import com.github.bestheroz.standard.common.enums.AuthorityEnum;
+import com.github.bestheroz.standard.common.mybatis.OperatorHelper;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.List;
@@ -48,7 +49,7 @@ public class AdminDto {
     @Schema(description = "비밀번호 변경 일시", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private Instant changePasswordAt;
 
-    public static Response of(Admin admin) {
+    public static Response of(Admin admin, OperatorHelper operatorHelper) {
       final Response response = new Response();
       response.setId(admin.getId());
       response.setLoginId(admin.getLoginId());
@@ -59,6 +60,7 @@ public class AdminDto {
       response.setJoinedAt(admin.getJoinedAt());
       response.setLatestActiveAt(admin.getLatestActiveAt());
       response.setChangePasswordAt(admin.getChangePasswordAt());
+      operatorHelper.fulfilOperator(admin);
       response.setCreatedAt(admin.getCreatedAt());
       response.setCreatedBy(admin.getCreatedBy());
       response.setUpdatedAt(admin.getUpdatedAt());

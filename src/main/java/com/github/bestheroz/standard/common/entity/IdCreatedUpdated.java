@@ -5,38 +5,18 @@ import com.github.bestheroz.demo.entity.User;
 import com.github.bestheroz.standard.common.dto.UserSimpleDto;
 import com.github.bestheroz.standard.common.enums.UserTypeEnum;
 import com.github.bestheroz.standard.common.security.Operator;
-import jakarta.persistence.*;
 import java.time.Instant;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
-@Getter
-@Setter
-@MappedSuperclass
+@Data
+@EqualsAndHashCode(callSuper = true)
 public class IdCreatedUpdated extends IdCreated {
-  @Column(nullable = false)
   private UserTypeEnum updatedObjectType;
 
-  @Column(nullable = false)
   private Instant updatedAt;
-
-  @Column(name = "updated_object_id", nullable = false)
   private Long updatedObjectId;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(
-      name = "updated_object_id",
-      referencedColumnName = "id",
-      insertable = false,
-      updatable = false)
   private Admin updatedByAdmin;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(
-      name = "updated_object_id",
-      referencedColumnName = "id",
-      insertable = false,
-      updatable = false)
   private User updatedByUser;
 
   public void setUpdatedBy(Operator operator, Instant instant) {

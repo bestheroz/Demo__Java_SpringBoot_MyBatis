@@ -5,42 +5,16 @@ import com.github.bestheroz.demo.entity.User;
 import com.github.bestheroz.standard.common.dto.UserSimpleDto;
 import com.github.bestheroz.standard.common.enums.UserTypeEnum;
 import com.github.bestheroz.standard.common.security.Operator;
-import jakarta.persistence.*;
 import java.time.Instant;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
-@MappedSuperclass
+@Data
 public class IdCreated {
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
-
-  @Column(nullable = false, updatable = false)
   private Instant createdAt;
-
-  @Column(nullable = false, updatable = false)
   private UserTypeEnum createdObjectType;
-
-  @Column(name = "created_object_id", nullable = false, updatable = false)
   private Long createdObjectId;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(
-      name = "created_object_id",
-      referencedColumnName = "id",
-      insertable = false,
-      updatable = false)
   private Admin createdByAdmin;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(
-      name = "created_object_id",
-      referencedColumnName = "id",
-      insertable = false,
-      updatable = false)
   private User createdByUser;
 
   public void setCreatedBy(Operator operator, Instant instant) {

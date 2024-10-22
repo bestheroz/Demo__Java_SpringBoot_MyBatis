@@ -8,13 +8,14 @@ import com.github.bestheroz.standard.common.dto.TokenDto;
 import com.github.bestheroz.standard.common.exception.AuthenticationException401;
 import com.github.bestheroz.standard.common.exception.ExceptionCode;
 import com.github.bestheroz.standard.common.exception.RequestException400;
+import com.github.bestheroz.standard.common.mybatis.OperatorHelper;
 import com.github.bestheroz.standard.common.security.Operator;
 import com.github.bestheroz.standard.common.util.PasswordUtil;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,45 +25,59 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class UserService {
   private final UserRepository userRepository;
+  private final OperatorHelper operatorHelper;
   private final JwtTokenProvider jwtTokenProvider;
 
   @Transactional(readOnly = true)
   public ListResult<UserDto.Response> getUserList(UserDto.Request request) {
-    return ListResult.of(
-        userRepository
-            .findAllByRemovedFlagIsFalse(
-                PageRequest.of(
-                    request.getPage() - 1, request.getPageSize(), Sort.by("id").descending()))
-            .map(UserDto.Response::of));
+    long count = userRepository.countByMap(Map.of("removedFlag", false));
+    return new ListResult<>(
+        request.getPage(),
+        request.getPageSize(),
+        count,
+        count == 0
+            ? List.of()
+            : userRepository
+                .getItemsByMapOrderByLimitOffset(
+                    Map.of("removedFlag", false),
+                    List.of("-id"),
+                    request.getPageSize(),
+                    (request.getPage() - 1) * request.getPageSize())
+                .stream()
+                .map((User user) -> UserDto.Response.of(user, operatorHelper))
+                .toList());
   }
 
   @Transactional(readOnly = true)
   public UserDto.Response getUser(final Long id) {
     return this.userRepository
-        .findById(id)
-        .map(UserDto.Response::of)
+        .getItemById(id)
+        .map((User user) -> UserDto.Response.of(user, operatorHelper))
         .orElseThrow(() -> new RequestException400(ExceptionCode.UNKNOWN_USER));
   }
 
   public UserDto.Response createUser(final UserCreateDto.Request request, Operator operator) {
-    if (this.userRepository.findByLoginIdAndRemovedFlagFalse(request.getLoginId()).isPresent()) {
+    if (this.userRepository.countByMap(
+            Map.of("loginId", request.getLoginId(), "removedFlag", false))
+        > 0) {
       throw new RequestException400(ExceptionCode.ALREADY_JOINED_ACCOUNT);
     }
-
-    return UserDto.Response.of(this.userRepository.save(request.toEntity(operator)));
+    User user = request.toEntity(operator);
+    this.userRepository.insert(user);
+    return UserDto.Response.of(user, operatorHelper);
   }
 
   public UserDto.Response updateUser(
       final Long id, final UserUpdateDto.Request request, Operator operator) {
     User user =
         this.userRepository
-            .findById(id)
+            .getItemById(id)
             .orElseThrow(() -> new RequestException400(ExceptionCode.UNKNOWN_USER));
     if (user.getRemovedFlag()) throw new RequestException400(ExceptionCode.UNKNOWN_USER);
 
-    if (this.userRepository
-        .findByLoginIdAndRemovedFlagFalseAndIdNot(request.getLoginId(), id)
-        .isPresent()) {
+    if (this.userRepository.countByMap(
+            Map.of("loginId", request.getLoginId(), "removedFlag", false, "id:not", id))
+        > 0) {
       throw new RequestException400(ExceptionCode.ALREADY_JOINED_ACCOUNT);
     }
 
@@ -73,27 +88,28 @@ public class UserService {
         request.getUseFlag(),
         request.getAuthorities(),
         operator);
-    return UserDto.Response.of(user);
+    this.userRepository.updateById(user, user.getId());
+    return UserDto.Response.of(user, operatorHelper);
   }
 
   public void deleteUser(final Long id, Operator operator) {
     User user =
         this.userRepository
-            .findById(id)
+            .getItemById(id)
             .orElseThrow(() -> new RequestException400(ExceptionCode.UNKNOWN_USER));
     if (user.getRemovedFlag()) throw new RequestException400(ExceptionCode.UNKNOWN_USER);
     if (user.getId().equals(operator.getId())) {
       throw new RequestException400(ExceptionCode.CANNOT_REMOVE_YOURSELF);
     }
-
     user.remove(operator);
+    this.userRepository.updateById(user, user.getId());
   }
 
   public UserDto.Response changePassword(
       final Long id, final UserChangePasswordDto.Request request, Operator operator) {
     User user =
         this.userRepository
-            .findById(id)
+            .getItemById(id)
             .orElseThrow(() -> new RequestException400(ExceptionCode.UNKNOWN_USER));
     if (user.getRemovedFlag()) throw new RequestException400(ExceptionCode.UNKNOWN_USER);
     if (!PasswordUtil.verifyPassword(request.getOldPassword(), user.getPassword())) {
@@ -105,13 +121,14 @@ public class UserService {
     }
 
     user.changePassword(request.getNewPassword(), operator);
-    return UserDto.Response.of(user);
+    this.userRepository.updateById(user, user.getId());
+    return UserDto.Response.of(user, operatorHelper);
   }
 
   public TokenDto loginUser(UserLoginDto.Request request) {
     User user =
         this.userRepository
-            .findByLoginIdAndRemovedFlagFalse(request.getLoginId())
+            .getItemByMap(Map.of("loginId", request.getLoginId(), "removedFlag", false))
             .orElseThrow(() -> new RequestException400(ExceptionCode.UNJOINED_ACCOUNT));
     if (!user.getUseFlag()) {
       throw new RequestException400(ExceptionCode.UNKNOWN_USER);
@@ -121,6 +138,7 @@ public class UserService {
       throw new RequestException400(ExceptionCode.UNKNOWN_USER);
     }
     user.renewToken(jwtTokenProvider.createRefreshToken(new Operator(user)));
+    this.userRepository.updateById(user, user.getId());
     return new TokenDto(jwtTokenProvider.createAccessToken(new Operator(user)), user.getToken());
   }
 
@@ -128,7 +146,7 @@ public class UserService {
     Long id = jwtTokenProvider.getId(refreshToken);
     User user =
         this.userRepository
-            .findById(id)
+            .getItemById(id)
             .orElseThrow(() -> new RequestException400(ExceptionCode.UNKNOWN_USER));
     if (user.getRemovedFlag()
         || user.getToken() == null
@@ -139,6 +157,7 @@ public class UserService {
       return new TokenDto(jwtTokenProvider.createAccessToken(new Operator(user)), user.getToken());
     } else if (StringUtils.equals(user.getToken(), refreshToken)) {
       user.renewToken(jwtTokenProvider.createRefreshToken(new Operator(user)));
+      this.userRepository.updateById(user, user.getId());
       return new TokenDto(jwtTokenProvider.createAccessToken(new Operator(user)), user.getToken());
     } else {
       throw new AuthenticationException401();
@@ -148,13 +167,16 @@ public class UserService {
   public void logout(Long id) {
     User user =
         this.userRepository
-            .findById(id)
+            .getItemById(id)
             .orElseThrow(() -> new RequestException400(ExceptionCode.UNKNOWN_USER));
     user.logout();
+    this.userRepository.updateById(user, user.getId());
   }
 
   @Transactional(readOnly = true)
   public Boolean checkLoginId(String loginId, Long id) {
-    return this.userRepository.findByLoginIdAndRemovedFlagFalseAndIdNot(loginId, id).isEmpty();
+    return this.userRepository.countByMap(
+            Map.of("loginId", loginId, "removedFlag", false, "id:not", id))
+        == 0;
   }
 }

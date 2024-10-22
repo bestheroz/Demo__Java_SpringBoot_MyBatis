@@ -8,13 +8,6 @@ spring:
     resources:
       chain:
         compressed: true
-  jpa:
-    properties:
-      hibernate:
-        jdbc:
-          time_zone: UTC
-        default_batch_fetch_size: 1000
-    open-in-view: false
   datasource:
     driver-class-name: com.amazonaws.secretsmanager.sql.AWSSecretsManagerMySQLDriver
   jackson:
@@ -24,6 +17,12 @@ spring:
     aws:
       region:
         static: ap-northeast-2
+mybatis:
+  type-aliases-package: com.github.bestheroz.demo.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+    default-enum-type-handler: com.github.bestheroz.standard.common.mybatis.handler.GenericEnumTypeHandler
 server:
   port: 8000
   compression:

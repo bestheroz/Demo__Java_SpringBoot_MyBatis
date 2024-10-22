@@ -6,50 +6,28 @@ import com.github.bestheroz.standard.common.enums.UserTypeEnum;
 import com.github.bestheroz.standard.common.security.Operator;
 import com.github.bestheroz.standard.common.util.PasswordUtil;
 import io.micrometer.common.util.StringUtils;
-import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
-import jakarta.persistence.DiscriminatorValue;
-import jakarta.persistence.Entity;
 import java.time.Instant;
 import java.util.List;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-@Getter
-@Setter
-@Entity
+@Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@DiscriminatorValue("admin")
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class Admin extends IdCreatedUpdated {
-  @Column(nullable = false)
   private String loginId;
-
   private String password;
   private String token;
-
-  @Column(nullable = false)
   private String name;
-
-  @Column(nullable = false)
   private Boolean useFlag;
-
-  @Column(nullable = false)
   private Boolean managerFlag;
 
-  @Convert(converter = AuthorityEnum.AuthorityEnumListConverter.class)
-  @Column(columnDefinition = "json", nullable = false)
   private List<AuthorityEnum> authorities;
 
   private Instant changePasswordAt;
   private Instant latestActiveAt;
-
   private Instant joinedAt;
-
-  @Column(nullable = false)
   private Boolean removedFlag;
-
   private Instant removedAt;
 
   public UserTypeEnum getType() {

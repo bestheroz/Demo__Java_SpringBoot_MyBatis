@@ -34,7 +34,7 @@ public class AdminController {
   @Operation(summary = "로그인 아이디 중복 확인")
   public boolean checkLoginId(
       @Schema(description = "로그인 아이디") @RequestParam String loginId,
-      @Schema(description = "관리자 ID") @RequestParam(required = false) Long id) {
+      @Schema(description = "관리자 ID") @RequestParam(required = false, value = "adminId") Long id) {
     return adminService.checkLoginId(loginId, id);
   }
 

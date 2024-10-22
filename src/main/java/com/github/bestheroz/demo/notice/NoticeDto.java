@@ -2,6 +2,7 @@ package com.github.bestheroz.demo.notice;
 
 import com.github.bestheroz.demo.entity.Notice;
 import com.github.bestheroz.standard.common.dto.IdCreatedUpdatedDto;
+import com.github.bestheroz.standard.common.mybatis.OperatorHelper;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -30,12 +31,13 @@ public class NoticeDto {
     @Schema(description = "사용 여부", requiredMode = Schema.RequiredMode.REQUIRED)
     private Boolean useFlag;
 
-    public static Response of(Notice notice) {
+    public static Response of(Notice notice, OperatorHelper operatorHelper) {
       final Response response = new Response();
       response.setId(notice.getId());
       response.setTitle(notice.getTitle());
       response.setContent(notice.getContent());
       response.setUseFlag(notice.getUseFlag());
+      operatorHelper.fulfilOperator(notice);
       response.setCreatedAt(notice.getCreatedAt());
       response.setCreatedBy(notice.getCreatedBy());
       response.setUpdatedAt(notice.getUpdatedAt());

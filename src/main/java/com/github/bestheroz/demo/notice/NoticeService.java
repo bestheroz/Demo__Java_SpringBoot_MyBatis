@@ -1,13 +1,15 @@
 package com.github.bestheroz.demo.notice;
 
+import com.github.bestheroz.demo.entity.Notice;
 import com.github.bestheroz.demo.repository.NoticeRepository;
 import com.github.bestheroz.standard.common.dto.ListResult;
 import com.github.bestheroz.standard.common.exception.ExceptionCode;
 import com.github.bestheroz.standard.common.exception.RequestException400;
+import com.github.bestheroz.standard.common.mybatis.OperatorHelper;
 import com.github.bestheroz.standard.common.security.Operator;
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,47 +18,64 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class NoticeService {
   private final NoticeRepository noticeRepository;
+  private final OperatorHelper operatorHelper;
 
   @Transactional(readOnly = true)
   public ListResult<NoticeDto.Response> getNoticeList(NoticeDto.Request request) {
-    return ListResult.of(
-        noticeRepository
-            .findAllByRemovedFlagIsFalse(
-                PageRequest.of(
-                    request.getPage() - 1, request.getPageSize(), Sort.by("id").descending()))
-            .map(NoticeDto.Response::of));
+    long count = noticeRepository.countByMap(Map.of("removedFlag", false));
+    return new ListResult<>(
+        request.getPage(),
+        request.getPageSize(),
+        count,
+        count == 0
+            ? List.of()
+            : noticeRepository
+                .getItemsByMapOrderByLimitOffset(
+                    Map.of("removedFlag", false),
+                    List.of("-id"),
+                    request.getPageSize(),
+                    (request.getPage() - 1) * request.getPageSize())
+                .stream()
+                .map((Notice notice) -> NoticeDto.Response.of(notice, operatorHelper))
+                .toList());
   }
 
   @Transactional(readOnly = true)
   public NoticeDto.Response getNotice(Long id) {
     return noticeRepository
-        .findById(id)
-        .map(NoticeDto.Response::of)
+        .getItemById(id)
+        .map((Notice notice) -> NoticeDto.Response.of(notice, operatorHelper))
         .orElseThrow(() -> new RequestException400(ExceptionCode.UNKNOWN_NOTICE));
   }
 
   public NoticeDto.Response createNotice(NoticeCreateDto.Request request, Operator operator) {
-    return NoticeDto.Response.of(noticeRepository.save(request.toEntity(operator)));
+    Notice notice = request.toEntity(operator);
+    noticeRepository.insert(notice);
+    return NoticeDto.Response.of(notice, operatorHelper);
   }
 
   public NoticeDto.Response updateNotice(
       Long id, NoticeCreateDto.Request request, Operator operator) {
     return NoticeDto.Response.of(
         noticeRepository
-            .findById(id)
+            .getItemById(id)
             .map(
                 notice -> {
                   notice.update(
                       request.getTitle(), request.getContent(), request.getUseFlag(), operator);
+                  this.noticeRepository.updateById(notice, notice.getId());
                   return notice;
                 })
-            .orElseThrow(() -> new RequestException400(ExceptionCode.UNKNOWN_NOTICE)));
+            .orElseThrow(() -> new RequestException400(ExceptionCode.UNKNOWN_NOTICE)),
+        operatorHelper);
   }
 
   public void deleteNotice(Long id, Operator operator) {
-    noticeRepository
-        .findById(id)
-        .orElseThrow(() -> new RequestException400(ExceptionCode.UNKNOWN_NOTICE))
-        .remove(operator);
+    Notice notice =
+        noticeRepository
+            .getItemById(id)
+            .orElseThrow(() -> new RequestException400(ExceptionCode.UNKNOWN_NOTICE));
+    notice.remove(operator);
+    this.noticeRepository.updateById(notice, notice.getId());
   }
 }

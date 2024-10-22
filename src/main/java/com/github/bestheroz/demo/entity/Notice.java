@@ -2,29 +2,18 @@ package com.github.bestheroz.demo.entity;
 
 import com.github.bestheroz.standard.common.entity.IdCreatedUpdated;
 import com.github.bestheroz.standard.common.security.Operator;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import java.io.Serializable;
 import java.time.Instant;
 import lombok.*;
 
-@Entity
-@Getter
-@Setter
+@Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Notice extends IdCreatedUpdated implements Serializable {
-  @Column(nullable = false)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class Notice extends IdCreatedUpdated {
   private String title;
-
-  @Column(nullable = false)
   private String content;
-
-  @Column(nullable = false)
   private Boolean useFlag;
-
-  @Column(nullable = false)
   private Boolean removedFlag;
-
   private Instant removedAt;
 
   public static Notice of(String title, String content, Boolean useFlag, Operator operator) {

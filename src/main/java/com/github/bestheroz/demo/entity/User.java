@@ -1,52 +1,32 @@
 package com.github.bestheroz.demo.entity;
 
 import com.github.bestheroz.standard.common.entity.IdCreatedUpdated;
-import com.github.bestheroz.standard.common.entity.converter.JsonAttributeConverter;
 import com.github.bestheroz.standard.common.enums.AuthorityEnum;
 import com.github.bestheroz.standard.common.enums.UserTypeEnum;
 import com.github.bestheroz.standard.common.security.Operator;
 import com.github.bestheroz.standard.common.util.PasswordUtil;
 import io.micrometer.common.util.StringUtils;
-import jakarta.persistence.*;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import lombok.*;
 
-@Getter
-@Setter
-@Entity
+@Data
+@EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@DiscriminatorValue("user")
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class User extends IdCreatedUpdated {
-  @Column(nullable = false)
   private String loginId;
-
   private String password;
   private String token;
-
-  @Column(nullable = false)
   private String name;
-
-  @Column(nullable = false)
   private Boolean useFlag;
-
-  @Convert(converter = AuthorityEnum.AuthorityEnumListConverter.class)
-  @Column(columnDefinition = "json", nullable = false)
   private List<AuthorityEnum> authorities;
-
   private Instant changePasswordAt;
   private Instant latestActiveAt;
-
   private Instant joinedAt;
-
-  @Convert(converter = JsonAttributeConverter.class)
-  @Column(columnDefinition = "json", nullable = false)
   private Map<String, Object> additionalInfo;
-
-  @Column(nullable = false)
   private Boolean removedFlag;
-
   private Instant removedAt;
 
   public UserTypeEnum getType() {

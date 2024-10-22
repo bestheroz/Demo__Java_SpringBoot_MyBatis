@@ -14,7 +14,7 @@ public class MapperConfig {
   public ObjectMapper objectMapper() {
     final ObjectMapper objectMapper = new ObjectMapper();
     objectMapper.registerModule(new JavaTimeModule());
-    objectMapper.setDateFormat(new StdDateFormat());
+    objectMapper.setDateFormat(new StdDateFormat().withColonInTimeZone(true));
     objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
     return objectMapper;

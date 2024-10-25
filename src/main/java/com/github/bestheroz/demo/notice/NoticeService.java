@@ -1,11 +1,11 @@
 package com.github.bestheroz.demo.notice;
 
 import com.github.bestheroz.demo.entity.Notice;
+import com.github.bestheroz.demo.entity.service.OperatorHelper;
 import com.github.bestheroz.demo.repository.NoticeRepository;
 import com.github.bestheroz.standard.common.dto.ListResult;
 import com.github.bestheroz.standard.common.exception.ExceptionCode;
 import com.github.bestheroz.standard.common.exception.RequestException400;
-import com.github.bestheroz.standard.common.mybatis.OperatorHelper;
 import com.github.bestheroz.standard.common.security.Operator;
 import java.util.List;
 import java.util.Map;
@@ -29,14 +29,15 @@ public class NoticeService {
         count,
         count == 0
             ? List.of()
-            : noticeRepository
-                .getItemsByMapOrderByLimitOffset(
-                    Map.of("removedFlag", false),
-                    List.of("-id"),
-                    request.getPageSize(),
-                    (request.getPage() - 1) * request.getPageSize())
+            : operatorHelper
+                .fulfilOperator(
+                    noticeRepository.getItemsByMapOrderByLimitOffset(
+                        Map.of("removedFlag", false),
+                        List.of("-id"),
+                        request.getPageSize(),
+                        (request.getPage() - 1) * request.getPageSize()))
                 .stream()
-                .map((Notice notice) -> NoticeDto.Response.of(notice, operatorHelper))
+                .map(NoticeDto.Response::of)
                 .toList());
   }
 
@@ -44,30 +45,29 @@ public class NoticeService {
   public NoticeDto.Response getNotice(Long id) {
     return noticeRepository
         .getItemById(id)
-        .map((Notice notice) -> NoticeDto.Response.of(notice, operatorHelper))
+        .map(notice -> NoticeDto.Response.of(operatorHelper.fulfilOperator(notice)))
         .orElseThrow(() -> new RequestException400(ExceptionCode.UNKNOWN_NOTICE));
   }
 
   public NoticeDto.Response createNotice(NoticeCreateDto.Request request, Operator operator) {
     Notice notice = request.toEntity(operator);
     noticeRepository.insert(notice);
-    return NoticeDto.Response.of(notice, operatorHelper);
+    return NoticeDto.Response.of(operatorHelper.fulfilOperator(notice));
   }
 
   public NoticeDto.Response updateNotice(
       Long id, NoticeCreateDto.Request request, Operator operator) {
-    return NoticeDto.Response.of(
-        noticeRepository
-            .getItemById(id)
-            .map(
-                notice -> {
-                  notice.update(
-                      request.getTitle(), request.getContent(), request.getUseFlag(), operator);
-                  this.noticeRepository.updateById(notice, notice.getId());
-                  return notice;
-                })
-            .orElseThrow(() -> new RequestException400(ExceptionCode.UNKNOWN_NOTICE)),
-        operatorHelper);
+    return noticeRepository
+        .getItemById(id)
+        .map(
+            notice -> {
+              notice.update(
+                  request.getTitle(), request.getContent(), request.getUseFlag(), operator);
+              this.noticeRepository.updateById(notice, notice.getId());
+              return notice;
+            })
+        .map(notice -> NoticeDto.Response.of(operatorHelper.fulfilOperator(notice)))
+        .orElseThrow(() -> new RequestException400(ExceptionCode.UNKNOWN_NOTICE));
   }
 
   public void deleteNotice(Long id, Operator operator) {

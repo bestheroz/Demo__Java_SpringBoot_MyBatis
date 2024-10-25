@@ -1,6 +1,7 @@
 package com.github.bestheroz.demo.admin;
 
 import com.github.bestheroz.demo.entity.Admin;
+import com.github.bestheroz.demo.entity.service.OperatorHelper;
 import com.github.bestheroz.demo.repository.AdminRepository;
 import com.github.bestheroz.standard.common.authenticate.JwtTokenProvider;
 import com.github.bestheroz.standard.common.dto.ListResult;
@@ -8,7 +9,6 @@ import com.github.bestheroz.standard.common.dto.TokenDto;
 import com.github.bestheroz.standard.common.exception.AuthenticationException401;
 import com.github.bestheroz.standard.common.exception.ExceptionCode;
 import com.github.bestheroz.standard.common.exception.RequestException400;
-import com.github.bestheroz.standard.common.mybatis.OperatorHelper;
 import com.github.bestheroz.standard.common.security.Operator;
 import com.github.bestheroz.standard.common.util.PasswordUtil;
 import java.util.List;
@@ -34,14 +34,15 @@ public class AdminService {
     List<AdminDto.Response> items =
         count == 0
             ? List.of()
-            : adminRepository
-                .getItemsByMapOrderByLimitOffset(
-                    Map.of("removedFlag", false),
-                    List.of("-id"),
-                    request.getPageSize(),
-                    (request.getPage() - 1) * request.getPageSize())
+            : operatorHelper
+                .fulfilOperator(
+                    adminRepository.getItemsByMapOrderByLimitOffset(
+                        Map.of("removedFlag", false),
+                        List.of("-id"),
+                        request.getPageSize(),
+                        (request.getPage() - 1) * request.getPageSize()))
                 .stream()
-                .map(admin -> AdminDto.Response.of(admin, operatorHelper))
+                .map(AdminDto.Response::of)
                 .toList();
     return new ListResult<>(request.getPage(), request.getPageSize(), count, items);
   }
@@ -50,7 +51,7 @@ public class AdminService {
   public AdminDto.Response getAdmin(final Long id) {
     return this.adminRepository
         .getItemById(id)
-        .map(admin -> AdminDto.Response.of(admin, operatorHelper))
+        .map(admin -> AdminDto.Response.of(operatorHelper.fulfilOperator(admin)))
         .orElseThrow(() -> new RequestException400(ExceptionCode.UNKNOWN_ADMIN));
   }
 
@@ -62,7 +63,7 @@ public class AdminService {
     }
     Admin admin = request.toEntity(operator);
     this.adminRepository.insert(admin);
-    return AdminDto.Response.of(admin, operatorHelper);
+    return AdminDto.Response.of(operatorHelper.fulfilOperator(admin));
   }
 
   public AdminDto.Response updateAdmin(
@@ -94,7 +95,7 @@ public class AdminService {
         request.getAuthorities(),
         operator);
     this.adminRepository.updateById(admin, admin.getId());
-    return AdminDto.Response.of(admin, operatorHelper);
+    return AdminDto.Response.of(operatorHelper.fulfilOperator(admin));
   }
 
   public void deleteAdmin(final Long id, Operator operator) {
@@ -128,7 +129,7 @@ public class AdminService {
 
     admin.changePassword(request.getNewPassword(), operator);
     this.adminRepository.updateById(admin, admin.getId());
-    return AdminDto.Response.of(admin, operatorHelper);
+    return AdminDto.Response.of(operatorHelper.fulfilOperator(admin));
   }
 
   public TokenDto loginAdmin(AdminLoginDto.Request request) {

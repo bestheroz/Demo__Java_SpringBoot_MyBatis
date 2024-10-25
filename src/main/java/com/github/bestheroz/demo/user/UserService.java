@@ -1,6 +1,7 @@
 package com.github.bestheroz.demo.user;
 
 import com.github.bestheroz.demo.entity.User;
+import com.github.bestheroz.demo.entity.service.OperatorHelper;
 import com.github.bestheroz.demo.repository.UserRepository;
 import com.github.bestheroz.standard.common.authenticate.JwtTokenProvider;
 import com.github.bestheroz.standard.common.dto.ListResult;
@@ -8,7 +9,6 @@ import com.github.bestheroz.standard.common.dto.TokenDto;
 import com.github.bestheroz.standard.common.exception.AuthenticationException401;
 import com.github.bestheroz.standard.common.exception.ExceptionCode;
 import com.github.bestheroz.standard.common.exception.RequestException400;
-import com.github.bestheroz.standard.common.mybatis.OperatorHelper;
 import com.github.bestheroz.standard.common.security.Operator;
 import com.github.bestheroz.standard.common.util.PasswordUtil;
 import java.util.List;
@@ -37,14 +37,15 @@ public class UserService {
         count,
         count == 0
             ? List.of()
-            : userRepository
-                .getItemsByMapOrderByLimitOffset(
-                    Map.of("removedFlag", false),
-                    List.of("-id"),
-                    request.getPageSize(),
-                    (request.getPage() - 1) * request.getPageSize())
+            : operatorHelper
+                .fulfilOperator(
+                    userRepository.getItemsByMapOrderByLimitOffset(
+                        Map.of("removedFlag", false),
+                        List.of("-id"),
+                        request.getPageSize(),
+                        (request.getPage() - 1) * request.getPageSize()))
                 .stream()
-                .map((User user) -> UserDto.Response.of(user, operatorHelper))
+                .map(UserDto.Response::of)
                 .toList());
   }
 
@@ -52,7 +53,7 @@ public class UserService {
   public UserDto.Response getUser(final Long id) {
     return this.userRepository
         .getItemById(id)
-        .map((User user) -> UserDto.Response.of(user, operatorHelper))
+        .map((User user) -> UserDto.Response.of(operatorHelper.fulfilOperator(user)))
         .orElseThrow(() -> new RequestException400(ExceptionCode.UNKNOWN_USER));
   }
 
@@ -64,7 +65,7 @@ public class UserService {
     }
     User user = request.toEntity(operator);
     this.userRepository.insert(user);
-    return UserDto.Response.of(user, operatorHelper);
+    return UserDto.Response.of(operatorHelper.fulfilOperator(user));
   }
 
   public UserDto.Response updateUser(
@@ -89,7 +90,7 @@ public class UserService {
         request.getAuthorities(),
         operator);
     this.userRepository.updateById(user, user.getId());
-    return UserDto.Response.of(user, operatorHelper);
+    return UserDto.Response.of(operatorHelper.fulfilOperator(user));
   }
 
   public void deleteUser(final Long id, Operator operator) {
@@ -122,7 +123,7 @@ public class UserService {
 
     user.changePassword(request.getNewPassword(), operator);
     this.userRepository.updateById(user, user.getId());
-    return UserDto.Response.of(user, operatorHelper);
+    return UserDto.Response.of(operatorHelper.fulfilOperator(user));
   }
 
   public TokenDto loginUser(UserLoginDto.Request request) {

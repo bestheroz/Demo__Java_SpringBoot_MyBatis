@@ -4,12 +4,10 @@ import com.github.bestheroz.demo.entity.Admin;
 import com.github.bestheroz.demo.entity.User;
 import com.github.bestheroz.demo.repository.AdminRepository;
 import com.github.bestheroz.demo.repository.UserRepository;
-import com.github.bestheroz.standard.common.entity.IdCreated;
 import com.github.bestheroz.standard.common.entity.IdCreatedUpdated;
 import com.github.bestheroz.standard.common.enums.UserTypeEnum;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -23,107 +21,68 @@ public class OperatorHelper {
   private final UserRepository userRepository;
 
   public <T extends IdCreatedUpdated> List<T> fulfilOperator(final List<T> operators) {
-    Set<Long> adminIds =
-        operators.stream()
-            .filter(operator1 -> operator1.getUpdatedObjectType().equals(UserTypeEnum.ADMIN))
-            .map(
-                operator1 ->
-                    List.of(operator1.getUpdatedObjectId(), operator1.getCreatedObjectId()))
-            .flatMap(List::stream)
-            .collect(Collectors.toSet());
-    List<Admin> admins =
-        adminIds.isEmpty()
-            ? List.of()
-            : adminRepository.getTargetItemsByMap(
-                Set.of("id", "loginId", "name"), Map.of("id:in", adminIds));
-    Set<Long> userIds =
-        operators.stream()
-            .filter(operator1 -> operator1.getUpdatedObjectType().equals(UserTypeEnum.USER))
-            .map(
-                operator1 ->
-                    List.of(operator1.getUpdatedObjectId(), operator1.getCreatedObjectId()))
-            .flatMap(List::stream)
-            .collect(Collectors.toSet());
-    List<User> users =
-        userIds.isEmpty()
-            ? List.of()
-            : userRepository.getTargetItemsByMap(
-                Set.of("id", "loginId", "name"), Map.of("id:in", userIds));
-    operators.forEach(
-        operator -> {
-          if (!admins.isEmpty() && operator.getUpdatedObjectType().equals(UserTypeEnum.ADMIN)) {
-            admins.stream()
-                .filter(admin -> admin.getId().equals(operator.getUpdatedObjectId()))
-                .findFirst()
-                .ifPresent(operator::setUpdatedByAdmin);
-          } else if (!users.isEmpty()
-              && operator.getUpdatedObjectType().equals(UserTypeEnum.USER)) {
-            users.stream()
-                .filter(user -> user.getId().equals(operator.getUpdatedObjectId()))
-                .findFirst()
-                .ifPresent(operator::setUpdatedByUser);
-          }
-        });
-    return fulfilOperatorCreated(operators, admins, users);
-  }
+    Set<Long> adminIds = new HashSet<>();
+    Set<Long> userIds = new HashSet<>();
 
-  private <T extends IdCreated> List<T> fulfilOperatorCreated(
-      final List<T> operators, final List<Admin> admins, final List<User> users) {
-    List<Admin> admins_;
-    if (admins == null || admins.isEmpty()) {
-      Set<Long> adminIds =
-          operators.stream()
-              .filter(operator -> operator.getCreatedObjectType().equals(UserTypeEnum.ADMIN))
-              .map(IdCreated::getCreatedObjectId)
-              .collect(Collectors.toSet());
-      admins_ =
-          adminIds.isEmpty()
-              ? List.of()
-              : adminRepository.getTargetItemsByMap(
-                  Set.of("id", "loginId", "name"), Map.of("id:in", adminIds));
-    } else {
-      admins_ = admins;
+    for (T operator : operators) {
+      if (operator.getUpdatedObjectType().equals(UserTypeEnum.ADMIN)) {
+        adminIds.add(operator.getUpdatedObjectId());
+      } else if (operator.getUpdatedObjectType().equals(UserTypeEnum.USER)) {
+        userIds.add(operator.getUpdatedObjectId());
+      }
+      if (operator.getCreatedObjectType().equals(UserTypeEnum.ADMIN)) {
+        adminIds.add(operator.getCreatedObjectId());
+      } else if (operator.getCreatedObjectType().equals(UserTypeEnum.USER)) {
+        userIds.add(operator.getCreatedObjectId());
+      }
     }
-    List<User> users_;
-    if (users == null || users.isEmpty()) {
-      Set<Long> userIds =
-          operators.stream()
-              .filter(operator -> operator.getCreatedObjectType().equals(UserTypeEnum.USER))
-              .map(IdCreated::getCreatedObjectId)
-              .collect(Collectors.toSet());
-      users_ =
-          userIds.isEmpty()
-              ? List.of()
-              : userRepository.getTargetItemsByMap(
-                  Set.of("id", "loginId", "name"), Map.of("id:in", userIds));
-    } else {
-      users_ = users;
+
+    Map<Long, Admin> adminMap =
+        adminIds.isEmpty()
+            ? Collections.emptyMap()
+            : adminRepository
+                .getTargetItemsByMap(Set.of("id", "loginId", "name"), Map.of("id:in", adminIds))
+                .stream()
+                .collect(Collectors.toMap(Admin::getId, Function.identity()));
+
+    Map<Long, User> userMap =
+        userIds.isEmpty()
+            ? Collections.emptyMap()
+            : userRepository
+                .getTargetItemsByMap(Set.of("id", "loginId", "name"), Map.of("id:in", userIds))
+                .stream()
+                .collect(Collectors.toMap(User::getId, Function.identity()));
+
+    for (T operator : operators) {
+      if (operator.getUpdatedObjectType().equals(UserTypeEnum.ADMIN)) {
+        Admin admin = adminMap.get(operator.getUpdatedObjectId());
+        if (admin != null) {
+          operator.setUpdatedByAdmin(admin);
+        }
+      } else if (operator.getUpdatedObjectType().equals(UserTypeEnum.USER)) {
+        User user = userMap.get(operator.getUpdatedObjectId());
+        if (user != null) {
+          operator.setUpdatedByUser(user);
+        }
+      }
+
+      if (operator.getCreatedObjectType().equals(UserTypeEnum.ADMIN)) {
+        Admin admin = adminMap.get(operator.getCreatedObjectId());
+        if (admin != null) {
+          operator.setCreatedByAdmin(admin);
+        }
+      } else if (operator.getCreatedObjectType().equals(UserTypeEnum.USER)) {
+        User user = userMap.get(operator.getCreatedObjectId());
+        if (user != null) {
+          operator.setCreatedByUser(user);
+        }
+      }
     }
-    return operators.stream()
-        .peek(
-            operator -> {
-              if (!admins_.isEmpty()
-                  && operator.getCreatedObjectType().equals(UserTypeEnum.ADMIN)) {
-                admins_.stream()
-                    .filter(admin -> admin.getId().equals(operator.getCreatedObjectId()))
-                    .findFirst()
-                    .ifPresent(operator::setCreatedByAdmin);
-              } else if (!users_.isEmpty()
-                  && operator.getCreatedObjectType().equals(UserTypeEnum.USER)) {
-                users_.stream()
-                    .filter(user -> user.getId().equals(operator.getCreatedObjectId()))
-                    .findFirst()
-                    .ifPresent(operator::setCreatedByUser);
-              }
-            })
-        .toList();
+
+    return operators;
   }
 
   public <T extends IdCreatedUpdated> T fulfilOperator(final T operator) {
     return fulfilOperator(List.of(operator)).getFirst();
-  }
-
-  public <T extends IdCreated> T fulfilOperatorCreated(final T operator) {
-    return fulfilOperatorCreated(List.of(operator), null, null).getFirst();
   }
 }

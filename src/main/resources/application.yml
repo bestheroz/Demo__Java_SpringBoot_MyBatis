@@ -67,9 +67,6 @@ server:
 sentry:
   logging:
     enabled: false
-environment:
-  app:
-    test: test
 jwt:
   access-token-expiration-minutes: 1440
 ---

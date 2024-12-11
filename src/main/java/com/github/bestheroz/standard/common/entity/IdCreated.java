@@ -23,7 +23,9 @@ public class IdCreated {
     this.createdByAdmin = Admin.of(operator);
     if (operator.getType().equals(UserTypeEnum.ADMIN)) {
       this.createdByAdmin = Admin.of(operator);
+      this.createdByUser = null;
     } else if (operator.getType().equals(UserTypeEnum.USER)) {
+      this.createdByAdmin = null;
       this.createdByUser = User.of(operator);
     }
   }

@@ -25,7 +25,9 @@ public class IdCreatedUpdated extends IdCreated {
     this.updatedObjectType = operator.getType();
     if (operator.getType().equals(UserTypeEnum.ADMIN)) {
       this.updatedByAdmin = Admin.of(operator);
+      this.updatedByUser = null;
     } else if (operator.getType().equals(UserTypeEnum.USER)) {
+      this.updatedByAdmin = null;
       this.updatedByUser = User.of(operator);
     }
   }

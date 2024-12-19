@@ -20,16 +20,16 @@ public class IdCreatedUpdated extends IdCreated {
   private User updatedByUser;
 
   public void setUpdatedBy(Operator operator, Instant instant) {
+    this.updatedAt = instant;
+    this.updatedObjectId = operator.getId();
+    this.updatedObjectType = operator.getType();
     if (operator.getType().equals(UserTypeEnum.ADMIN)) {
-      this.updatedObjectType = UserTypeEnum.ADMIN;
       this.updatedByAdmin = Admin.of(operator);
+      this.updatedByUser = null;
     } else if (operator.getType().equals(UserTypeEnum.USER)) {
-      this.updatedObjectType = UserTypeEnum.USER;
+      this.updatedByAdmin = null;
       this.updatedByUser = User.of(operator);
     }
-    this.setUpdatedAt(instant);
-    this.setUpdatedObjectId(operator.getId());
-    this.setUpdatedObjectType(operator.getType());
   }
 
   public UserSimpleDto getUpdatedBy() {

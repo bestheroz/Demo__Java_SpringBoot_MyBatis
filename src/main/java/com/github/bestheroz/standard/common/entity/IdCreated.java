@@ -18,16 +18,16 @@ public class IdCreated {
   private User createdByUser;
 
   public void setCreatedBy(Operator operator, Instant instant) {
+    this.createdAt = instant;
+    this.createdObjectType = operator.getType();
+    this.createdObjectId = operator.getId();
     if (operator.getType().equals(UserTypeEnum.ADMIN)) {
-      this.createdObjectType = UserTypeEnum.ADMIN;
       this.createdByAdmin = Admin.of(operator);
+      this.createdByUser = null;
     } else if (operator.getType().equals(UserTypeEnum.USER)) {
-      this.createdObjectType = UserTypeEnum.USER;
+      this.createdByAdmin = null;
       this.createdByUser = User.of(operator);
     }
-    this.setCreatedAt(instant);
-    this.setCreatedObjectId(operator.getId());
-    this.setCreatedObjectType(operator.getType());
   }
 
   public UserSimpleDto getCreatedBy() {

@@ -8,15 +8,9 @@ spring:
     resources:
       chain:
         compressed: true
-  datasource:
-    driver-class-name: com.amazonaws.secretsmanager.sql.AWSSecretsManagerMySQLDriver
   jackson:
     serialization:
       FAIL_ON_EMPTY_BEANS: false
-  cloud:
-    aws:
-      region:
-        static: ap-northeast-2
 mybatis:
   type-aliases-package: com.github.bestheroz.demo.entity
   configuration:

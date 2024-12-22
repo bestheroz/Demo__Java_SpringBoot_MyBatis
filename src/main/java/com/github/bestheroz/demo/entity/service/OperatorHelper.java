@@ -22,6 +22,7 @@ public class OperatorHelper {
   private final UserRepository userRepository;
 
   public <T extends IdCreatedUpdated> List<T> fulfilOperator(final List<T> operators) {
+    if(operators.isEmpty()) return operators;
     Set<Long> adminIds = new HashSet<>();
     Set<Long> userIds = new HashSet<>();
 
@@ -36,10 +37,12 @@ public class OperatorHelper {
   }
 
   public <T extends IdCreatedUpdated> T fulfilOperator(final T operator) {
+    if(operator == null) return null;
     return fulfilOperator(List.of(operator)).getFirst();
   }
 
   public <T extends IdCreated> List<T> fulfilCreatedOperator(final List<T> operators) {
+    if(operators.isEmpty()) return operators;
     Set<Long> adminIds = new HashSet<>();
     Set<Long> userIds = new HashSet<>();
 
@@ -54,6 +57,7 @@ public class OperatorHelper {
   }
 
   public <T extends IdCreated> T fulfilCreatedOperator(final T operator) {
+    if(operator == null) return null;
     return fulfilCreatedOperator(List.of(operator)).getFirst();
   }
 

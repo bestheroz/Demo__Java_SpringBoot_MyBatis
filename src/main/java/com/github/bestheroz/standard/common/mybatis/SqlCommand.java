@@ -2,6 +2,7 @@ package com.github.bestheroz.standard.common.mybatis;
 
 import com.github.bestheroz.standard.common.enums.ValueEnum;
 import com.github.bestheroz.standard.common.util.LogUtils;
+import jakarta.persistence.Table;
 import java.lang.reflect.Field;
 import java.text.MessageFormat;
 import java.time.Instant;
@@ -50,11 +51,15 @@ public class SqlCommand {
           DELETE_BY_MAP);
 
   public String getTableName() {
-    return getTableName(this.getEntityClass().getSimpleName());
+    return getTableName(this.getEntityClass());
   }
 
-  public static String getTableName(final String javaClassName) {
-    return getCamelCaseToSnakeCase(javaClassName).toLowerCase();
+  public static String getTableName(final Class<?> entityClass) {
+    Table tableNameAnnotation = entityClass.getAnnotation(Table.class);
+    if (tableNameAnnotation != null) {
+      return tableNameAnnotation.name();
+    }
+    return getCamelCaseToSnakeCase(entityClass.getSimpleName()).toLowerCase();
   }
 
   private void verifyWhereKey(final Map<String, Object> whereConditions) {
@@ -174,7 +179,7 @@ public class SqlCommand {
 
   public <T> String insert(@NonNull final T entity) {
     final SQL sql = new SQL();
-    sql.INSERT_INTO(getTableName(entity.getClass().getSimpleName()));
+    sql.INSERT_INTO(getTableName(entity.getClass()));
     toMap(entity)
         .forEach(
             (key, value) -> {
@@ -195,8 +200,7 @@ public class SqlCommand {
       throw new RuntimeException("entities empty");
     }
     final SQL sql = new SQL();
-    sql.INSERT_INTO(
-        this.wrapIdentifier(getTableName(entities.getFirst().getClass().getSimpleName())));
+    sql.INSERT_INTO(this.wrapIdentifier(getTableName(entities.getFirst().getClass())));
     final Set<String> columns = this.getEntityFields(entities.getFirst().getClass());
 
     sql.INTO_COLUMNS(

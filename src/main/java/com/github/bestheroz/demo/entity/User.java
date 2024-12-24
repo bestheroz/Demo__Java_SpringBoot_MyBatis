@@ -6,6 +6,7 @@ import com.github.bestheroz.standard.common.enums.UserTypeEnum;
 import com.github.bestheroz.standard.common.security.Operator;
 import com.github.bestheroz.standard.common.util.PasswordUtil;
 import io.micrometer.common.util.StringUtils;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import lombok.*;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Table(name = "users")
 public class User extends IdCreatedUpdated {
   private String loginId;
   private String password;

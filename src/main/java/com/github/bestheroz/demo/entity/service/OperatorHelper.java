@@ -7,16 +7,15 @@ import com.github.bestheroz.demo.repository.UserRepository;
 import com.github.bestheroz.standard.common.entity.IdCreated;
 import com.github.bestheroz.standard.common.entity.IdCreatedUpdated;
 import com.github.bestheroz.standard.common.enums.UserTypeEnum;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class OperatorHelper {
   private final AdminRepository adminRepository;
   private final UserRepository userRepository;

@@ -2,6 +2,7 @@ package com.github.bestheroz.demo.entity;
 
 import com.github.bestheroz.standard.common.entity.IdCreatedUpdated;
 import com.github.bestheroz.standard.common.security.Operator;
+import jakarta.persistence.Table;
 import java.time.Instant;
 import lombok.*;
 
@@ -9,6 +10,7 @@ import lombok.*;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Table(name = "notices")
 public class Notice extends IdCreatedUpdated {
   private String title;
   private String content;

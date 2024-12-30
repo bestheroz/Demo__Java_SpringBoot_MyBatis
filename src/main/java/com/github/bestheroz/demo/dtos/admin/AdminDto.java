@@ -1,4 +1,4 @@
-package com.github.bestheroz.demo.admin;
+package com.github.bestheroz.demo.dtos.admin;
 
 import com.github.bestheroz.demo.entity.Admin;
 import com.github.bestheroz.standard.common.dto.IdCreatedUpdatedDto;

@@ -1,4 +1,4 @@
-package com.github.bestheroz.demo.user;
+package com.github.bestheroz.demo.dtos.user;
 
 import com.github.bestheroz.demo.entity.User;
 import com.github.bestheroz.standard.common.dto.IdCreatedUpdatedDto;

@@ -1,5 +1,7 @@
-package com.github.bestheroz.demo.notice;
+package com.github.bestheroz.demo.services;
 
+import com.github.bestheroz.demo.dtos.notice.NoticeCreateDto;
+import com.github.bestheroz.demo.dtos.notice.NoticeDto;
 import com.github.bestheroz.demo.entity.Notice;
 import com.github.bestheroz.demo.entity.service.OperatorHelper;
 import com.github.bestheroz.demo.repository.NoticeRepository;

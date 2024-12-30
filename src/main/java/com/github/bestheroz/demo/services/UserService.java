@@ -1,5 +1,6 @@
-package com.github.bestheroz.demo.user;
+package com.github.bestheroz.demo.services;
 
+import com.github.bestheroz.demo.dtos.user.*;
 import com.github.bestheroz.demo.entity.User;
 import com.github.bestheroz.demo.entity.service.OperatorHelper;
 import com.github.bestheroz.demo.repository.UserRepository;

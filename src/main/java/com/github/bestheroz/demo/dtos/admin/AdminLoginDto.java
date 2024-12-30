@@ -1,9 +1,9 @@
-package com.github.bestheroz.demo.user;
+package com.github.bestheroz.demo.dtos.admin;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-public class UserLoginDto {
+public class AdminLoginDto {
   @Data
   public static class Request {
     @Schema(description = "로그인 아이디", requiredMode = Schema.RequiredMode.REQUIRED)

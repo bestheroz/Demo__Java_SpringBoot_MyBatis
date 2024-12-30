@@ -1,8 +1,8 @@
 package com.github.bestheroz.demo.services;
 
+import com.github.bestheroz.demo.domain.User;
+import com.github.bestheroz.demo.domain.service.OperatorHelper;
 import com.github.bestheroz.demo.dtos.user.*;
-import com.github.bestheroz.demo.entity.User;
-import com.github.bestheroz.demo.entity.service.OperatorHelper;
 import com.github.bestheroz.demo.repository.UserRepository;
 import com.github.bestheroz.standard.common.authenticate.JwtTokenProvider;
 import com.github.bestheroz.standard.common.dto.ListResult;

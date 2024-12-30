@@ -1,6 +1,6 @@
 package com.github.bestheroz.demo.dtos.admin;
 
-import com.github.bestheroz.demo.entity.Admin;
+import com.github.bestheroz.demo.domain.Admin;
 import com.github.bestheroz.standard.common.dto.IdCreatedUpdatedDto;
 import com.github.bestheroz.standard.common.enums.AuthorityEnum;
 import io.swagger.v3.oas.annotations.media.Schema;

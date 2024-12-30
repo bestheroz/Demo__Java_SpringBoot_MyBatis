@@ -1,6 +1,6 @@
-package com.github.bestheroz.demo.entity;
+package com.github.bestheroz.demo.domain;
 
-import com.github.bestheroz.standard.common.entity.IdCreatedUpdated;
+import com.github.bestheroz.standard.common.domain.IdCreatedUpdated;
 import com.github.bestheroz.standard.common.enums.AuthorityEnum;
 import com.github.bestheroz.standard.common.enums.UserTypeEnum;
 import com.github.bestheroz.standard.common.security.Operator;
@@ -9,67 +9,60 @@ import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import lombok.*;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Table(name = "admins")
-public class Admin extends IdCreatedUpdated {
+@Table(name = "users")
+public class User extends IdCreatedUpdated {
   private String loginId;
   private String password;
   private String token;
   private String name;
   private Boolean useFlag;
-  private Boolean managerFlag;
-
   private List<AuthorityEnum> authorities;
-
   private Instant changePasswordAt;
   private Instant latestActiveAt;
   private Instant joinedAt;
+  private Map<String, Object> additionalInfo;
   private Boolean removedFlag;
   private Instant removedAt;
 
   public UserTypeEnum getType() {
-    return UserTypeEnum.ADMIN;
+    return UserTypeEnum.USER;
   }
 
-  public List<AuthorityEnum> getAuthorities() {
-    return this.managerFlag ? List.of(AuthorityEnum.values()) : this.authorities;
-  }
-
-  public static Admin of(
+  public static User of(
       String loginId,
       String password,
       String name,
       Boolean useFlag,
-      Boolean managerFlag,
       List<AuthorityEnum> authorities,
       Operator operator) {
     Instant now = Instant.now();
-    Admin admin = new Admin();
-    admin.loginId = loginId;
-    admin.password = PasswordUtil.getPasswordHash(password);
-    admin.name = name;
-    admin.useFlag = useFlag;
-    admin.managerFlag = managerFlag;
-    admin.authorities = authorities;
-    admin.joinedAt = now;
-    admin.removedFlag = false;
-    admin.setCreatedBy(operator, now);
-    admin.setUpdatedBy(operator, now);
-    return admin;
+    User user = new User();
+    user.loginId = loginId;
+    user.password = PasswordUtil.getPasswordHash(password);
+    user.name = name;
+    user.useFlag = useFlag;
+    user.authorities = authorities;
+    user.joinedAt = now;
+    user.additionalInfo = Map.of();
+    user.removedFlag = false;
+    user.setCreatedBy(operator, now);
+    user.setUpdatedBy(operator, now);
+    return user;
   }
 
-  public static Admin of(Operator operator) {
-    Admin admin = new Admin();
-    admin.setId(operator.getId());
-    admin.setLoginId(operator.getLoginId());
-    admin.setName(operator.getName());
-    admin.setManagerFlag(operator.getManagerFlag());
-    return admin;
+  public static User of(Operator operator) {
+    User user = new User();
+    user.setId(operator.getId());
+    user.setLoginId(operator.getLoginId());
+    user.setName(operator.getName());
+    return user;
   }
 
   public void update(
@@ -77,13 +70,11 @@ public class Admin extends IdCreatedUpdated {
       String password,
       String name,
       Boolean useFlag,
-      Boolean managerFlag,
       List<AuthorityEnum> authorities,
       Operator operator) {
     this.loginId = loginId;
     this.name = name;
     this.useFlag = useFlag;
-    this.managerFlag = managerFlag;
     this.authorities = authorities;
     Instant now = Instant.now();
     this.setUpdatedBy(operator, now);

@@ -1,6 +1,6 @@
 package com.github.bestheroz.demo.dtos.user;
 
-import com.github.bestheroz.demo.entity.User;
+import com.github.bestheroz.demo.domain.User;
 import com.github.bestheroz.standard.common.dto.IdCreatedUpdatedDto;
 import com.github.bestheroz.standard.common.enums.AuthorityEnum;
 import io.swagger.v3.oas.annotations.media.Schema;

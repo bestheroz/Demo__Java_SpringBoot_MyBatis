@@ -25,7 +25,6 @@ public class SqlCommand {
   public static final String SELECT_ITEMS = "getDistinctAndTargetItemsByMapOrderByLimitOffset";
   public static final String SELECT_ITEM_BY_MAP = "getItemByMap";
   public static final String COUNT_BY_MAP = "countByMap";
-  public static final String COUNT_BY_DATATABLE = "countForDataTable";
   public static final String INSERT = "insert";
   public static final String INSERT_BATCH = "insertBatch";
   public static final String UPDATE_MAP_BY_MAP = "updateMapByMap";
@@ -44,7 +43,6 @@ public class SqlCommand {
           SELECT_ITEMS,
           SELECT_ITEM_BY_MAP,
           COUNT_BY_MAP,
-          COUNT_BY_DATATABLE,
           INSERT,
           INSERT_BATCH,
           UPDATE_MAP_BY_MAP,

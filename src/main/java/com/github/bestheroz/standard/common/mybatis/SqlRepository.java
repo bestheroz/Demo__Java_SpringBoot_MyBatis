@@ -162,8 +162,8 @@ public interface SqlRepository<T> {
       final Set<String> targetColumns,
       final Map<String, Object> whereConditions,
       final List<String> orderByConditions) {
-    return this.getTargetItemsByMapOrderByLimitOffset(
-        targetColumns, whereConditions, orderByConditions, null, null);
+    return this.getDistinctAndTargetItemsByMapOrderByLimitOffset(
+        Set.of(), targetColumns, whereConditions, orderByConditions, null, null);
   }
 
   default List<T> getTargetItemsByMapOrderByLimitOffset(

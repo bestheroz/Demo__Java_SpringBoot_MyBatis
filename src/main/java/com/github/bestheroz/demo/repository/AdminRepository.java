@@ -1,10 +1,10 @@
 package com.github.bestheroz.demo.repository;
 
 import com.github.bestheroz.demo.domain.Admin;
-import com.github.bestheroz.standard.common.mybatis.SqlRepository;
+import io.github.bestheroz.mybatis.MybatisRepository;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 
 @Mapper
 @Repository
-public interface AdminRepository extends SqlRepository<Admin> {}
+public interface AdminRepository extends MybatisRepository<Admin> {}

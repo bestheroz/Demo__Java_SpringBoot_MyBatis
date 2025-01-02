@@ -1,5 +1,6 @@
 package com.github.bestheroz.standard.common.enums;
 
+import io.github.bestheroz.mybatis.type.ValueEnum;
 import lombok.Getter;
 
 @Getter

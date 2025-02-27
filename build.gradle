@@ -1,5 +1,5 @@
 plugins {
-    id "org.springframework.boot" version "3.4.2"
+    id "org.springframework.boot" version "3.4.3"
     id "java"
     id "idea"
     id "com.diffplug.spotless" version "7.0.2"
@@ -31,8 +31,8 @@ dependencies {
     implementation 'org.hibernate.orm:hibernate-core:7.0.0.Beta4'
     implementation 'io.github.bestheroz:mybatis-repository:0.3.4'
     implementation "com.auth0:java-jwt:4.5.0"
-    implementation "io.sentry:sentry-spring-boot-starter-jakarta:8.2.0"
-    implementation "io.sentry:sentry-logback:8.2.0"
+    implementation "io.sentry:sentry-spring-boot-starter-jakarta:8.3.0"
+    implementation "io.sentry:sentry-logback:8.3.0"
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5"
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.5"
     implementation "org.fusesource.jansi:jansi:2.4.1"

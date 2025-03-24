@@ -114,7 +114,7 @@ public class UserService {
             .getItemById(id)
             .orElseThrow(() -> new RequestException400(ExceptionCode.UNKNOWN_USER));
     if (user.getRemovedFlag()) throw new RequestException400(ExceptionCode.UNKNOWN_USER);
-    if (!PasswordUtil.verifyPassword(request.getOldPassword(), user.getPassword())) {
+    if (!PasswordUtil.isPasswordValid(request.getOldPassword(), user.getPassword())) {
       log.warn("password not match");
       throw new RequestException400(ExceptionCode.UNKNOWN_USER);
     }
@@ -135,7 +135,7 @@ public class UserService {
     if (!user.getUseFlag()) {
       throw new RequestException400(ExceptionCode.UNKNOWN_USER);
     }
-    if (!PasswordUtil.verifyPassword(request.getPassword(), user.getPassword())) {
+    if (!PasswordUtil.isPasswordValid(request.getPassword(), user.getPassword())) {
       log.warn("password not match");
       throw new RequestException400(ExceptionCode.UNKNOWN_USER);
     }

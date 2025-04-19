@@ -96,7 +96,8 @@ public class ApiExceptionHandler {
   })
   public ResponseEntity<ApiResult<?>> missingServletRequestParameterException(final Throwable e) {
     log.warn(LogUtils.getStackTrace(e));
-    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+        .body(ApiResult.of(ExceptionCode.INVALID_PARAMETER));
   }
 
   @ExceptionHandler({

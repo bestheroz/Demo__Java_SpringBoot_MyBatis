@@ -92,6 +92,14 @@ public class ApiExceptionHandler {
   }
 
   @ExceptionHandler({
+    MissingServletRequestParameterException.class,
+  })
+  public ResponseEntity<ApiResult<?>> missingServletRequestParameterException(final Throwable e) {
+    log.warn(LogUtils.getStackTrace(e));
+    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+  }
+
+  @ExceptionHandler({
     BindException.class,
     MethodArgumentTypeMismatchException.class,
     MissingServletRequestParameterException.class

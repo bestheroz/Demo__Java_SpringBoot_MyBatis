@@ -101,7 +101,6 @@ public class AdminController {
       responses = {@ApiResponse(responseCode = "204")})
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @SecurityRequirement(name = "bearerAuth")
-  @PreAuthorize("hasAuthority('ADMIN_EDIT')")
   public void logout(@CurrentUser Operator operator) {
     adminService.logout(operator.getId());
   }

@@ -103,7 +103,6 @@ public class ApiExceptionHandler {
   @ExceptionHandler({
     BindException.class,
     MethodArgumentTypeMismatchException.class,
-    MissingServletRequestParameterException.class
   })
   public ResponseEntity<ApiResult<?>> bindException(final Throwable e) {
     log.warn(LogUtils.getStackTrace(e));

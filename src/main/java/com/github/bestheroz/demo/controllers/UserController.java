@@ -101,7 +101,6 @@ public class UserController {
       responses = {@ApiResponse(responseCode = "204")})
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @SecurityRequirement(name = "bearerAuth")
-  @PreAuthorize("hasAuthority('USER_EDIT')")
   public void logout(@CurrentUser Operator operator) {
     userService.logout(operator.getId());
   }

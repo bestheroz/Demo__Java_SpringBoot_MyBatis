@@ -102,13 +102,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
   }
 
-  /**
-   * 요청 URI와 HTTP 메서드를 기반으로 퍼블릭 경로인지 판단
-   *
-   * @param requestURI HttpServletRequest에서 추출한 URI (컨텍스트 패스 제외)
-   * @param httpMethod request.getMethod()로 조회한 메서드 문자열(GET, POST, DELETE 등)
-   * @return 퍼블릭 경로에 해당하면 true, 아니면 false
-   */
   private boolean isPublicPath(String requestURI, String httpMethod) {
     if (HttpMethod.GET.matches(httpMethod)) {
       return publicGetPaths.stream().anyMatch(pattern -> pathMatcher.match(pattern, requestURI));

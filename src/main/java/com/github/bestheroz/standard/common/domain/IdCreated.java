@@ -5,15 +5,16 @@ import com.github.bestheroz.demo.domain.User;
 import com.github.bestheroz.standard.common.dto.UserSimpleDto;
 import com.github.bestheroz.standard.common.enums.UserTypeEnum;
 import com.github.bestheroz.standard.common.security.Operator;
+import jakarta.persistence.Column;
 import java.time.Instant;
 import lombok.Data;
 
 @Data
 public class IdCreated {
-  private Long id;
-  private Instant createdAt;
-  private UserTypeEnum createdObjectType;
-  private Long createdObjectId;
+  @Column private Long id;
+  @Column private Instant createdAt;
+  @Column private UserTypeEnum createdObjectType;
+  @Column private Long createdObjectId;
   private Admin createdByAdmin;
   private User createdByUser;
 

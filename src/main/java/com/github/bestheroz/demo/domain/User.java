@@ -6,7 +6,7 @@ import com.github.bestheroz.standard.common.enums.UserTypeEnum;
 import com.github.bestheroz.standard.common.security.Operator;
 import com.github.bestheroz.standard.common.util.PasswordUtil;
 import io.micrometer.common.util.StringUtils;
-import jakarta.persistence.Table;
+import jakarta.persistence.Column;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -16,20 +16,19 @@ import lombok.*;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Table(name = "users")
 public class User extends IdCreatedUpdated {
-  private String loginId;
-  private String password;
-  private String token;
-  private String name;
-  private Boolean useFlag;
-  private List<AuthorityEnum> authorities;
-  private Instant changePasswordAt;
-  private Instant latestActiveAt;
-  private Instant joinedAt;
-  private Map<String, Object> additionalInfo;
-  private Boolean removedFlag;
-  private Instant removedAt;
+  @Column private String loginId;
+  @Column private String password;
+  @Column private String token;
+  @Column private String name;
+  @Column private Boolean useFlag;
+  @Column private List<AuthorityEnum> authorities;
+  @Column private Instant changePasswordAt;
+  @Column private Instant latestActiveAt;
+  @Column private Instant joinedAt;
+  @Column private Map<String, Object> additionalInfo;
+  @Column private Boolean removedFlag;
+  @Column private Instant removedAt;
 
   public UserTypeEnum getType() {
     return UserTypeEnum.USER;

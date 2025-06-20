@@ -2,7 +2,7 @@ package com.github.bestheroz.demo.domain;
 
 import com.github.bestheroz.standard.common.domain.IdCreatedUpdated;
 import com.github.bestheroz.standard.common.security.Operator;
-import jakarta.persistence.Table;
+import jakarta.persistence.Column;
 import java.time.Instant;
 import lombok.*;
 
@@ -10,13 +10,12 @@ import lombok.*;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Table(name = "notices")
 public class Notice extends IdCreatedUpdated {
-  private String title;
-  private String content;
-  private Boolean useFlag;
-  private Boolean removedFlag;
-  private Instant removedAt;
+  @Column private String title;
+  @Column private String content;
+  @Column private Boolean useFlag;
+  @Column private Boolean removedFlag;
+  @Column private Instant removedAt;
 
   public static Notice of(String title, String content, Boolean useFlag, Operator operator) {
     Notice notice = new Notice();

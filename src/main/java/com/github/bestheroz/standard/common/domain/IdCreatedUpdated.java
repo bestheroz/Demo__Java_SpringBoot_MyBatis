@@ -5,6 +5,7 @@ import com.github.bestheroz.demo.domain.User;
 import com.github.bestheroz.standard.common.dto.UserSimpleDto;
 import com.github.bestheroz.standard.common.enums.UserTypeEnum;
 import com.github.bestheroz.standard.common.security.Operator;
+import jakarta.persistence.Column;
 import java.time.Instant;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -12,10 +13,9 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class IdCreatedUpdated extends IdCreated {
-  private UserTypeEnum updatedObjectType;
-
-  private Instant updatedAt;
-  private Long updatedObjectId;
+  @Column private UserTypeEnum updatedObjectType;
+  @Column private Instant updatedAt;
+  @Column private Long updatedObjectId;
   private Admin updatedByAdmin;
   private User updatedByUser;
 

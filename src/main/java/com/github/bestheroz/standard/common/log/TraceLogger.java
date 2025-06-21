@@ -22,8 +22,11 @@ public class TraceLogger {
   private final ObjectMapper objectMapper;
 
   @Around(
-      "execution(!private * com.github.bestheroz..*Controller.*(..)) || execution(!private * com.github.bestheroz..*Service.*(..)) "
-          + "|| execution(!private * com.github.bestheroz..*Repository.*(..))")
+      """
+      execution(!private * com.github.bestheroz..*Controller.*(..)) ||
+      execution(!private * com.github.bestheroz..*Service.*(..)) ||
+      execution(!private * com.github.bestheroz..*Repository.*(..))
+      """)
   public Object writeLog(final ProceedingJoinPoint pjp) throws Throwable {
     final Object retVal;
 

@@ -11,6 +11,7 @@ import com.github.bestheroz.standard.common.exception.AuthenticationException401
 import com.github.bestheroz.standard.common.exception.ExceptionCode;
 import com.github.bestheroz.standard.common.exception.RequestException400;
 import com.github.bestheroz.standard.common.security.Operator;
+import com.github.bestheroz.standard.common.util.MapUtil;
 import com.github.bestheroz.standard.common.util.PasswordUtil;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,25 @@ public class UserService {
 
   @Transactional(readOnly = true)
   public ListResult<UserDto.Response> getUserList(UserDto.Request request) {
-    long count = userRepository.countByMap(Map.of("removedFlag", false));
+    Map<String, Object> filterMap =
+        MapUtil.buildMap(
+            m -> {
+              m.put("removedFlag", false);
+              if (request.getId() != null) {
+                m.put("id", request.getId());
+              }
+              if (StringUtils.isNotEmpty(request.getLoginId())) {
+                m.put("loginId:contains", request.getLoginId());
+              }
+              if (StringUtils.isNotEmpty(request.getName())) {
+                m.put("name:contains", request.getName());
+              }
+              if (request.getUseFlag() != null) {
+                m.put("useFlag", request.getUseFlag());
+              }
+            });
+
+    long count = userRepository.countByMap(filterMap);
     return new ListResult<>(
         request.getPage(),
         request.getPageSize(),
@@ -41,7 +60,7 @@ public class UserService {
             : operatorHelper
                 .fulfilOperator(
                     userRepository.getItemsByMapOrderByLimitOffset(
-                        Map.of("removedFlag", false),
+                        filterMap,
                         List.of("-id"),
                         request.getPageSize(),
                         (request.getPage() - 1) * request.getPageSize()))

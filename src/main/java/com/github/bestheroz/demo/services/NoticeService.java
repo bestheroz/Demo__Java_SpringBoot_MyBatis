@@ -9,9 +9,11 @@ import com.github.bestheroz.standard.common.dto.ListResult;
 import com.github.bestheroz.standard.common.exception.ExceptionCode;
 import com.github.bestheroz.standard.common.exception.RequestException400;
 import com.github.bestheroz.standard.common.security.Operator;
+import com.github.bestheroz.standard.common.util.MapUtil;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +26,23 @@ public class NoticeService {
 
   @Transactional(readOnly = true)
   public ListResult<NoticeDto.Response> getNoticeList(NoticeDto.Request request) {
-    long count = noticeRepository.countByMap(Map.of("removedFlag", false));
+    Map<String, Object> filterMap =
+        MapUtil.buildMap(
+            m -> {
+              m.put("removedFlag", false);
+              if (request.getId() != null) {
+                m.put("id", request.getId());
+              }
+              if (StringUtils.isNotEmpty(request.getTitle())) {
+                m.put("title:contains", request.getTitle());
+              }
+              if (request.getUseFlag() != null) {
+                m.put("useFlag", request.getUseFlag());
+              }
+            });
+
+    long count = noticeRepository.countByMap(filterMap);
+
     return new ListResult<>(
         request.getPage(),
         request.getPageSize(),
@@ -34,7 +52,7 @@ public class NoticeService {
             : operatorHelper
                 .fulfilOperator(
                     noticeRepository.getItemsByMapOrderByLimitOffset(
-                        Map.of("removedFlag", false),
+                        filterMap,
                         List.of("-id"),
                         request.getPageSize(),
                         (request.getPage() - 1) * request.getPageSize()))

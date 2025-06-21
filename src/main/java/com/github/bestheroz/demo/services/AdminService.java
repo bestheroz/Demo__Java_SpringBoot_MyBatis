@@ -15,6 +15,8 @@ import com.github.bestheroz.standard.common.util.MapUtil;
 import com.github.bestheroz.standard.common.util.PasswordUtil;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -53,23 +55,30 @@ public class AdminService {
               }
             });
 
-    long count = adminRepository.countByMap(filterMap);
-    return new ListResult<>(
-        request.getPage(),
-        request.getPageSize(),
-        count,
-        count == 0
-            ? List.of()
-            : operatorHelper
-                .fulfilOperator(
-                    adminRepository.getItemsByMapOrderByLimitOffset(
-                        filterMap,
-                        List.of("-id"),
-                        request.getPageSize(),
-                        (request.getPage() - 1) * request.getPageSize()))
-                .stream()
-                .map(AdminDto.Response::of)
-                .toList());
+    try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+      CompletableFuture<Long> countFuture =
+          CompletableFuture.supplyAsync(() -> adminRepository.countByMap(filterMap), executor);
+      CompletableFuture<List<Admin>> itemsFuture =
+          CompletableFuture.supplyAsync(
+              () ->
+                  adminRepository.getItemsByMapOrderByLimitOffset(
+                      filterMap,
+                      List.of("-id"),
+                      request.getPageSize(),
+                      (request.getPage() - 1) * request.getPageSize()),
+              executor);
+
+      Long count = countFuture.join();
+      if (count == 0) {
+        itemsFuture.cancel(true);
+        return new ListResult<>(request.getPage(), request.getPageSize(), 0L, List.of());
+      }
+
+      List<Admin> items = itemsFuture.join();
+      List<AdminDto.Response> responseList =
+          operatorHelper.fulfilOperator(items).stream().map(AdminDto.Response::of).toList();
+      return new ListResult<>(request.getPage(), request.getPageSize(), count, responseList);
+    }
   }
 
   @Transactional(readOnly = true)

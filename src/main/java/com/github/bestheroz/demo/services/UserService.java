@@ -1,5 +1,7 @@
 package com.github.bestheroz.demo.services;
 
+import static org.hibernate.internal.util.collections.CollectionHelper.listOf;
+
 import com.github.bestheroz.demo.domain.User;
 import com.github.bestheroz.demo.domain.service.OperatorHelper;
 import com.github.bestheroz.demo.dtos.user.*;
@@ -11,9 +13,12 @@ import com.github.bestheroz.standard.common.exception.AuthenticationException401
 import com.github.bestheroz.standard.common.exception.ExceptionCode;
 import com.github.bestheroz.standard.common.exception.RequestException400;
 import com.github.bestheroz.standard.common.security.Operator;
+import com.github.bestheroz.standard.common.util.MapUtil;
 import com.github.bestheroz.standard.common.util.PasswordUtil;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -31,23 +36,46 @@ public class UserService {
 
   @Transactional(readOnly = true)
   public ListResult<UserDto.Response> getUserList(UserDto.Request request) {
-    long count = userRepository.countByMap(Map.of("removedFlag", false));
-    return new ListResult<>(
-        request.getPage(),
-        request.getPageSize(),
-        count,
-        count == 0
-            ? List.of()
-            : operatorHelper
-                .fulfilOperator(
-                    userRepository.getItemsByMapOrderByLimitOffset(
-                        Map.of("removedFlag", false),
-                        List.of("-id"),
-                        request.getPageSize(),
-                        (request.getPage() - 1) * request.getPageSize()))
-                .stream()
-                .map(UserDto.Response::of)
-                .toList());
+    Map<String, Object> filterMap =
+        MapUtil.buildMap(
+            m -> {
+              m.put("removedFlag", false);
+              if (request.getId() != null) {
+                m.put("id", request.getId());
+              }
+              if (StringUtils.isNotEmpty(request.getLoginId())) {
+                m.put("loginId:contains", request.getLoginId());
+              }
+              if (StringUtils.isNotEmpty(request.getName())) {
+                m.put("name:contains", request.getName());
+              }
+              if (request.getUseFlag() != null) {
+                m.put("useFlag", request.getUseFlag());
+              }
+            });
+
+    try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+      CompletableFuture<Long> countFuture =
+          CompletableFuture.supplyAsync(() -> userRepository.countByMap(filterMap), executor);
+      CompletableFuture<List<User>> itemsFuture =
+          CompletableFuture.supplyAsync(
+              () ->
+                  userRepository.getItemsByMapOrderByLimitOffset(
+                      filterMap,
+                      listOf("-id"),
+                      request.getPageSize(),
+                      (request.getPage() - 1) * request.getPageSize()),
+              executor);
+      Long count = countFuture.join();
+      if (count == 0) {
+        itemsFuture.cancel(true);
+        return new ListResult<>(request.getPage(), request.getPageSize(), 0L, List.of());
+      }
+      List<User> items = itemsFuture.join();
+      List<UserDto.Response> responseList =
+          operatorHelper.fulfilOperator(items).stream().map(UserDto.Response::of).toList();
+      return new ListResult<>(request.getPage(), request.getPageSize(), count, responseList);
+    }
   }
 
   @Transactional(readOnly = true)

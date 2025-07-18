@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class AdminService {
   private final AdminRepository adminRepository;

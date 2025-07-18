@@ -60,8 +60,8 @@ spring:
     password: studydb%#123
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
-      maximum-pool-size: 3
-      minimum-idle: 2
+      maximum-pool-size: 10
+      minimum-idle: 3
 server:
   port: 8000
 sentry:

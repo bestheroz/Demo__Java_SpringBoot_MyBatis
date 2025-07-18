@@ -25,14 +25,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class AdminService {
   private final AdminRepository adminRepository;
   private final OperatorHelper operatorHelper;
   private final JwtTokenProvider jwtTokenProvider;
 
-  @Transactional(readOnly = true)
   public ListResult<AdminDto.Response> getAdminList(AdminDto.Request request) {
     Map<String, Object> filterMap =
         MapUtil.buildMap(
@@ -81,7 +79,6 @@ public class AdminService {
     }
   }
 
-  @Transactional(readOnly = true)
   public AdminDto.Response getAdmin(final Long id) {
     return this.adminRepository
         .getItemById(id)
@@ -89,6 +86,7 @@ public class AdminService {
         .orElseThrow(() -> new RequestException400(ExceptionCode.UNKNOWN_ADMIN));
   }
 
+  @Transactional
   public AdminDto.Response createAdmin(final AdminCreateDto.Request request, Operator operator) {
     if (this.adminRepository.countByMap(
             Map.of("loginId", request.getLoginId(), "removedFlag", false))
@@ -100,6 +98,7 @@ public class AdminService {
     return AdminDto.Response.of(operatorHelper.fulfilOperator(admin));
   }
 
+  @Transactional
   public AdminDto.Response updateAdmin(
       final Long id, final AdminUpdateDto.Request request, Operator operator) {
     Admin admin =
@@ -132,6 +131,7 @@ public class AdminService {
     return AdminDto.Response.of(operatorHelper.fulfilOperator(admin));
   }
 
+  @Transactional
   public void deleteAdmin(final Long id, Operator operator) {
     Admin admin =
         this.adminRepository
@@ -146,6 +146,7 @@ public class AdminService {
     this.adminRepository.updateById(admin, admin.getId());
   }
 
+  @Transactional
   public AdminDto.Response changePassword(
       final Long id, final AdminChangePasswordDto.Request request, Operator operator) {
     Admin admin =
@@ -166,6 +167,7 @@ public class AdminService {
     return AdminDto.Response.of(operatorHelper.fulfilOperator(admin));
   }
 
+  @Transactional
   public TokenDto loginAdmin(AdminLoginDto.Request request) {
     Admin admin =
         this.adminRepository
@@ -183,6 +185,7 @@ public class AdminService {
     return new TokenDto(jwtTokenProvider.createAccessToken(new Operator(admin)), admin.getToken());
   }
 
+  @Transactional
   public TokenDto renewToken(String refreshToken) {
     Long id = jwtTokenProvider.getId(refreshToken);
     Admin admin =
@@ -208,6 +211,7 @@ public class AdminService {
     }
   }
 
+  @Transactional
   public void logout(Long id) {
     Admin admin =
         this.adminRepository
@@ -217,7 +221,6 @@ public class AdminService {
     this.adminRepository.updateById(admin, admin.getId());
   }
 
-  @Transactional(readOnly = true)
   public Boolean checkLoginId(String loginId, Long id) {
     return this.adminRepository.countByMap(
             Map.of("loginId", loginId, "removedFlag", false, "id:not", id))

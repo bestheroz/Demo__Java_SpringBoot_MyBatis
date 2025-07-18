@@ -48,7 +48,7 @@ public class TraceLogger {
       stopWatch.stop();
       if (StringUtils.containsAny(signature, "Repository.", "RepositoryCustom.", ".domain.")) {
         if (!StringUtils.contains(signature, "HealthRepository")) {
-          log.info(STR_END_EXECUTE_TIME_FOR_REPOSITORY, signature, stopWatch.getTotalTimeSeconds());
+          log.info(STR_END_EXECUTE_TIME_FOR_REPOSITORY, signature, stopWatch.getTotalTimeMillis());
         }
       } else {
         if (!StringUtils.contains(signature, "HealthController")) {
@@ -56,7 +56,7 @@ public class TraceLogger {
           log.info(
               STR_END_EXECUTE_TIME,
               signature,
-              stopWatch.getTotalTimeSeconds(),
+              stopWatch.getTotalTimeMillis(),
               StringUtils.abbreviate(
                   StringUtils.defaultString(str, "null"),
                   "--skip massive text-- total length : " + StringUtils.length(str),
@@ -67,7 +67,7 @@ public class TraceLogger {
       if (stopWatch.isRunning()) {
         stopWatch.stop();
       }
-      log.info(STR_END_EXECUTE_TIME_FOR_EXCEPTION, signature, stopWatch.getTotalTimeSeconds());
+      log.info(STR_END_EXECUTE_TIME_FOR_EXCEPTION, signature, stopWatch.getTotalTimeMillis());
       throw e;
     }
     return retVal;

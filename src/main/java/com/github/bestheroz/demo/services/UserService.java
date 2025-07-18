@@ -1,7 +1,5 @@
 package com.github.bestheroz.demo.services;
 
-import static org.hibernate.internal.util.collections.CollectionHelper.listOf;
-
 import com.github.bestheroz.demo.domain.User;
 import com.github.bestheroz.demo.domain.service.OperatorHelper;
 import com.github.bestheroz.demo.dtos.user.*;
@@ -27,14 +25,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class UserService {
   private final UserRepository userRepository;
   private final OperatorHelper operatorHelper;
   private final JwtTokenProvider jwtTokenProvider;
 
-  @Transactional(readOnly = true)
   public ListResult<UserDto.Response> getUserList(UserDto.Request request) {
     Map<String, Object> filterMap =
         MapUtil.buildMap(
@@ -62,7 +58,7 @@ public class UserService {
               () ->
                   userRepository.getItemsByMapOrderByLimitOffset(
                       filterMap,
-                      listOf("-id"),
+                      List.of("-id"),
                       request.getPageSize(),
                       (request.getPage() - 1) * request.getPageSize()),
               executor);
@@ -78,7 +74,6 @@ public class UserService {
     }
   }
 
-  @Transactional(readOnly = true)
   public UserDto.Response getUser(final Long id) {
     return this.userRepository
         .getItemById(id)
@@ -86,6 +81,7 @@ public class UserService {
         .orElseThrow(() -> new RequestException400(ExceptionCode.UNKNOWN_USER));
   }
 
+  @Transactional
   public UserDto.Response createUser(final UserCreateDto.Request request, Operator operator) {
     if (this.userRepository.countByMap(
             Map.of("loginId", request.getLoginId(), "removedFlag", false))
@@ -97,6 +93,7 @@ public class UserService {
     return UserDto.Response.of(operatorHelper.fulfilOperator(user));
   }
 
+  @Transactional
   public UserDto.Response updateUser(
       final Long id, final UserUpdateDto.Request request, Operator operator) {
     User user =
@@ -122,6 +119,7 @@ public class UserService {
     return UserDto.Response.of(operatorHelper.fulfilOperator(user));
   }
 
+  @Transactional
   public void deleteUser(final Long id, Operator operator) {
     User user =
         this.userRepository
@@ -135,6 +133,7 @@ public class UserService {
     this.userRepository.updateById(user, user.getId());
   }
 
+  @Transactional
   public UserDto.Response changePassword(
       final Long id, final UserChangePasswordDto.Request request, Operator operator) {
     User user =
@@ -146,7 +145,7 @@ public class UserService {
       log.warn("password not match");
       throw new RequestException400(ExceptionCode.UNKNOWN_USER);
     }
-    if (user.getPassword().equals(request.getNewPassword())) {
+    if (PasswordUtil.isPasswordValid(request.getNewPassword(), user.getPassword())) {
       throw new RequestException400(ExceptionCode.CHANGE_TO_SAME_PASSWORD);
     }
 
@@ -155,6 +154,7 @@ public class UserService {
     return UserDto.Response.of(operatorHelper.fulfilOperator(user));
   }
 
+  @Transactional
   public TokenDto loginUser(UserLoginDto.Request request) {
     User user =
         this.userRepository
@@ -172,6 +172,7 @@ public class UserService {
     return new TokenDto(jwtTokenProvider.createAccessToken(new Operator(user)), user.getToken());
   }
 
+  @Transactional
   public TokenDto renewToken(String refreshToken) {
     Long id = jwtTokenProvider.getId(refreshToken);
     User user =
@@ -194,6 +195,7 @@ public class UserService {
     }
   }
 
+  @Transactional
   public void logout(Long id) {
     User user =
         this.userRepository
@@ -203,7 +205,6 @@ public class UserService {
     this.userRepository.updateById(user, user.getId());
   }
 
-  @Transactional(readOnly = true)
   public Boolean checkLoginId(String loginId, Long id) {
     return this.userRepository.countByMap(
             Map.of("loginId", loginId, "removedFlag", false, "id:not", id))

@@ -1,7 +1,5 @@
 package com.github.bestheroz.demo.services;
 
-import static org.hibernate.internal.util.collections.CollectionHelper.listOf;
-
 import com.github.bestheroz.demo.domain.Notice;
 import com.github.bestheroz.demo.domain.service.OperatorHelper;
 import com.github.bestheroz.demo.dtos.notice.NoticeCreateDto;
@@ -53,7 +51,7 @@ public class NoticeService {
               () ->
                   noticeRepository.getItemsByMapOrderByLimitOffset(
                       filterMap,
-                      listOf("-id"),
+                      List.of("-id"),
                       request.getPageSize(),
                       (request.getPage() - 1) * request.getPageSize()),
               executor);

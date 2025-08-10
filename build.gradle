@@ -1,5 +1,5 @@
 plugins {
-    id "org.springframework.boot" version "3.5.3"
+    id "org.springframework.boot" version "3.5.4"
     id "java"
     id "idea"
     id "com.diffplug.spotless" version "7.2.1"
@@ -25,14 +25,14 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-configuration-processor"
     implementation "org.aspectj:aspectjweaver"
     implementation "org.apache.commons:commons-lang3"
-    implementation "com.mysql:mysql-connector-j:9.3.0"
+    implementation "com.mysql:mysql-connector-j:9.4.0"
     implementation "org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.5"
     implementation "com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.12.0"
-    implementation 'org.hibernate.orm:hibernate-core:7.0.7.Final'
+    implementation 'org.hibernate.orm:hibernate-core:7.1.0.Final'
     implementation 'io.github.bestheroz:mybatis-repository:0.8.1'
     implementation "com.auth0:java-jwt:4.5.0"
-    implementation "io.sentry:sentry-spring-boot-starter-jakarta:8.17.0"
-    implementation "io.sentry:sentry-logback:8.17.0"
+    implementation "io.sentry:sentry-spring-boot-starter-jakarta:8.18.0"
+    implementation "io.sentry:sentry-logback:8.18.0"
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9"
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-api:2.8.9"
     implementation "org.fusesource.jansi:jansi:2.4.2"

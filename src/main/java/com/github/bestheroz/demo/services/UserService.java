@@ -143,7 +143,7 @@ public class UserService {
             .orElseThrow(() -> new RequestException400(ExceptionCode.UNKNOWN_USER));
     if (user.getRemovedFlag()) throw new RequestException400(ExceptionCode.UNKNOWN_USER);
     if (!PasswordUtil.isPasswordValid(request.getOldPassword(), user.getPassword())) {
-      log.warn("password not match");
+      log.warn("Password change failed for user: userId={}", user.getId());
       throw new RequestException400(ExceptionCode.UNKNOWN_USER);
     }
     if (PasswordUtil.isPasswordValid(request.getNewPassword(), user.getPassword())) {
@@ -165,7 +165,7 @@ public class UserService {
       throw new RequestException400(ExceptionCode.UNKNOWN_USER);
     }
     if (!PasswordUtil.isPasswordValid(request.getPassword(), user.getPassword())) {
-      log.warn("password not match");
+      log.warn("Authentication failed for user login attempt: loginId={}", user.getLoginId());
       throw new RequestException400(ExceptionCode.UNKNOWN_USER);
     }
     user.renewToken(jwtTokenProvider.createRefreshToken(new Operator(user)));

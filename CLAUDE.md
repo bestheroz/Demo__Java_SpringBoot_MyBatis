@@ -53,7 +53,7 @@ docker run -p 8000:8000 demo-app
   - `config`: Spring 설정 클래스
 
 ### 주요 기술 스택
-- **Java 21** with Spring Boot 3.5.4
+- **Java 21** with Spring Boot 3.5.5
 - **MyBatis** 3.0.5 for ORM
 - **MySQL** 데이터베이스
 - **JWT** 인증/인가

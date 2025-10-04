@@ -111,6 +111,24 @@ docker run -p 8000:8000 demo-app
 3. `services` 패키지에 비즈니스 로직 서비스 생성
 4. `controllers` 패키지에 REST API 컨트롤러 생성
 5. `dtos` 패키지에 하위 폴더를 만들고 DTO 클래스들 생성
+6. 필요시 `domain/service` 패키지에 헬퍼 클래스 생성 (예: `OperatorHelper`)
+
+### 트랜잭션 경계 원칙
+
+**올바른 패턴**:
+- Controller → Service (with @Transactional) → Repository
+- Controller → Service (with @Transactional) → Helper Service (without @Transactional)
+- Service (with @Transactional) → Private methods (without @Transactional)
+
+**피해야 할 패턴**:
+- Service (with @Transactional) → Service (with @Transactional)
+- Helper Service에 @Transactional 사용
+- Private 메서드에 @Transactional 사용
+
+### 도메인 헬퍼 패턴
+- 도메인별 공통 로직은 `domain/service` 패키지의 헬퍼 클래스로 분리
+- 헬퍼 클래스는 @Transactional을 사용하지 않음
+- 예시: `OperatorHelper` - 운영자(Admin/User) 공통 처리 로직
 
 ### 테스트
 현재 테스트 코드가 없으므로, 새로운 테스트 작성시 Spring Boot Test 규칙을 따르세요.

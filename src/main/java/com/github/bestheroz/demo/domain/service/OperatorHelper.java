@@ -8,6 +8,8 @@ import com.github.bestheroz.standard.common.domain.IdCreated;
 import com.github.bestheroz.standard.common.domain.IdCreatedUpdated;
 import com.github.bestheroz.standard.common.enums.UserTypeEnum;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -26,8 +28,25 @@ public class OperatorHelper {
 
     collectIds(operators, adminIds, userIds, true);
 
-    Map<Long, Admin> adminMap = fetchAdminMap(adminIds);
-    Map<Long, User> userMap = fetchUserMap(userIds);
+    // Admin과 User 데이터를 병렬로 조회 (Virtual Threads 사용)
+    Map<Long, Admin> adminMap;
+    Map<Long, User> userMap;
+
+    if (!adminIds.isEmpty() && !userIds.isEmpty()) {
+      try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+        CompletableFuture<Map<Long, Admin>> adminMapFuture =
+            CompletableFuture.supplyAsync(() -> fetchAdminMap(adminIds), executor);
+        CompletableFuture<Map<Long, User>> userMapFuture =
+            CompletableFuture.supplyAsync(() -> fetchUserMap(userIds), executor);
+
+        adminMap = adminMapFuture.join();
+        userMap = userMapFuture.join();
+      }
+    } else {
+      // 하나만 조회하는 경우 순차 처리 (병렬화 오버헤드 방지)
+      adminMap = fetchAdminMap(adminIds);
+      userMap = fetchUserMap(userIds);
+    }
 
     setOperatorData(operators, adminMap, userMap, true);
 
@@ -46,8 +65,25 @@ public class OperatorHelper {
 
     collectIds(operators, adminIds, userIds, false);
 
-    Map<Long, Admin> adminMap = fetchAdminMap(adminIds);
-    Map<Long, User> userMap = fetchUserMap(userIds);
+    // Admin과 User 데이터를 병렬로 조회 (Virtual Threads 사용)
+    Map<Long, Admin> adminMap;
+    Map<Long, User> userMap;
+
+    if (!adminIds.isEmpty() && !userIds.isEmpty()) {
+      try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+        CompletableFuture<Map<Long, Admin>> adminMapFuture =
+            CompletableFuture.supplyAsync(() -> fetchAdminMap(adminIds), executor);
+        CompletableFuture<Map<Long, User>> userMapFuture =
+            CompletableFuture.supplyAsync(() -> fetchUserMap(userIds), executor);
+
+        adminMap = adminMapFuture.join();
+        userMap = userMapFuture.join();
+      }
+    } else {
+      // 하나만 조회하는 경우 순차 처리 (병렬화 오버헤드 방지)
+      adminMap = fetchAdminMap(adminIds);
+      userMap = fetchUserMap(userIds);
+    }
 
     setOperatorData(operators, adminMap, userMap, false);
 

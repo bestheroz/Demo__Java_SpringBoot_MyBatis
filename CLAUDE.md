@@ -16,8 +16,17 @@ Spring Boot + MyBatis + MySQL을 사용한 Java 웹 애플리케이션입니다.
 # 애플리케이션 실행
 ./gradlew bootRun
 
-# JAR 파일로 실행
+# JAR 파일로 실행 (빌드 결과: demo.jar)
 java -jar build/libs/demo.jar
+```
+
+### 테스트
+```bash
+# 테스트 실행
+./gradlew test
+
+# 모든 검증 실행 (테스트 + 코드 포맷 검사)
+./gradlew check
 ```
 
 ### 코드 품질 관리
@@ -53,26 +62,39 @@ docker run -p 8000:8000 demo-app
   - `config`: Spring 설정 클래스
 
 ### 주요 기술 스택
-- **Java 21** with Spring Boot 3.5.5
+- **Java 25** with Spring Boot 3.5.6
 - **MyBatis** 3.0.5 for ORM
 - **MySQL** 데이터베이스
-- **JWT** 인증/인가
-- **Swagger/OpenAPI** API 문서화
-- **Spotless** 코드 포맷팅
+- **JWT** 인증/인가 (Auth0 java-jwt 4.5.0)
+- **Swagger/OpenAPI** API 문서화 (SpringDoc 2.8.13)
+- **Spotless** 코드 포맷팅 (Google Java Format)
 - **P6Spy** SQL 로깅
 - **Sentry** 에러 모니터링
+- **HikariCP** 커넥션 풀
 
 ### 인증/보안
 - JWT 토큰 기반 인증 (`JwtTokenProvider`, `JwtAuthenticationFilter`)
 - Access Token: 5분 (local: 1440분)
 - Refresh Token: 30분
 - Spring Security 설정: `SecurityConfig`
+- CORS 설정: http://localhost:3000 허용
+- BCrypt 패스워드 인코딩
+
+### API 접근
+- 기본 포트: 8000
+- Swagger UI: http://localhost:8000/swagger-ui.html
+- API Docs: http://localhost:8000/v3/api-docs
+- 공개 엔드포인트 (인증 불필요):
+  - GET: `/api/v1/health/**`, `/api/v1/notices`, `/api/v1/admins/check-login-id`, `/api/v1/users/check-login-id`
+  - POST: `/api/v1/admins/login`, `/api/v1/users/login`
 
 ### 데이터베이스
 - 환경별 설정 (local, sandbox, qa, prod)
-- 기본 포트: 8000
-- HikariCP 연결 풀 사용
-- Flyway 마이그레이션 파일: `migration/` 디렉토리
+- MyBatis 매퍼: `src/main/resources/mybatis/mapper/` 디렉토리
+- 마이그레이션: 프로젝트 루트의 `/migration` 디렉토리 (V1, V2, V3 SQL 파일)
+- HikariCP 연결 풀 설정
+  - local: maximum-pool-size=10, minimum-idle=3
+  - prod: maximum-pool-size=30, minimum-idle=10
 
 ### 공통 기능
 - 전역 예외 처리: `ApiExceptionHandler`

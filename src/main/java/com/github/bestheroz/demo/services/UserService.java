@@ -78,7 +78,7 @@ public class UserService {
   public UserDto.Response getUser(final Long id) {
     return this.userRepository
         .getItemById(id)
-        .map((User user) -> UserDto.Response.of(operatorHelper.fulfilOperator(user)))
+        .map(user -> UserDto.Response.of(operatorHelper.fulfilOperator(user)))
         .orElseThrow(() -> new RequestException400(ExceptionCode.UNKNOWN_USER));
   }
 

@@ -85,10 +85,9 @@ public class JwtTokenProvider {
 
   public String resolveAccessToken(HttpServletRequest request) {
     String bearerToken = request.getHeader("Authorization");
-    if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-      return bearerToken.substring(7);
-    }
-    return null;
+    return (bearerToken != null && bearerToken.startsWith("Bearer "))
+        ? bearerToken.substring(7)
+        : null;
   }
 
   public boolean validateToken(String token) {

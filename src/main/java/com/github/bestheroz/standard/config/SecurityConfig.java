@@ -24,26 +24,25 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
-  public static final String[] GET_PUBLIC =
-      new String[] {
-        "/swagger-ui.html",
-        "/swagger-ui/**",
-        "/v3/api-docs/**",
-        "/webjars/**",
-        "/favicon.ico",
-        "/api/v1/health/**",
-        "/api/v1/notices",
-        "/api/v1/notices/{id}",
-        "/api/v1/admins/check-login-id",
-        "/api/v1/admins/renew-token",
-        "/api/v1/users/check-login-id",
-        "/api/v1/users/renew-token"
-      };
-  public static final String[] POST_PUBLIC =
-      new String[] {
-        "/api/v1/admins/login", "/api/v1/users/login",
-      };
-  public static final String[] DELETE_PUBLIC = new String[] {};
+
+  public static final String[] GET_PUBLIC = {
+    "/swagger-ui.html",
+    "/swagger-ui/**",
+    "/v3/api-docs/**",
+    "/webjars/**",
+    "/favicon.ico",
+    "/api/v1/health/**",
+    "/api/v1/notices",
+    "/api/v1/notices/{id}",
+    "/api/v1/admins/check-login-id",
+    "/api/v1/admins/renew-token",
+    "/api/v1/users/check-login-id",
+    "/api/v1/users/renew-token"
+  };
+
+  public static final String[] POST_PUBLIC = {"/api/v1/admins/login", "/api/v1/users/login"};
+
+  public static final String[] DELETE_PUBLIC = {};
 
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {

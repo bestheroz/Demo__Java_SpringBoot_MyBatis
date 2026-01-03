@@ -54,22 +54,24 @@ docker run -p 8000:8000 demo-app
 - `com.github.bestheroz.demo`: 비즈니스 로직 (Admin, User, Notice 도메인)
   - `controllers`: REST API 컨트롤러
   - `services`: 비즈니스 로직 서비스
-  - `repository`: MyBatis 매퍼 인터페이스
+  - `repository`: MyBatis 매퍼 인터페이스 (`MybatisRepository<T>` 확장)
   - `domain`: 엔티티 클래스
+  - `domain/service`: 도메인 헬퍼 클래스 (예: `OperatorHelper`)
   - `dtos`: 데이터 전송 객체
 - `com.github.bestheroz.standard`: 공통 프레임워크 코드
   - `common`: 공통 유틸리티 및 설정
   - `config`: Spring 설정 클래스
 
 ### 주요 기술 스택
-- **Java 25** with Spring Boot 3.5.6
-- **MyBatis** 3.0.5 for ORM
+- **Java 25** with Spring Boot 4.0.1
+- **MyBatis** 4.0.1 + mybatis-repository 0.8.1 for ORM
+- **Virtual Threads** 활성화 (`spring.threads.virtual.enabled: true`)
 - **MySQL** 데이터베이스
 - **JWT** 인증/인가 (Auth0 java-jwt 4.5.0)
-- **Swagger/OpenAPI** API 문서화 (SpringDoc 2.8.13)
+- **Swagger/OpenAPI** API 문서화 (SpringDoc 3.0.1)
 - **Spotless** 코드 포맷팅 (Google Java Format)
 - **P6Spy** SQL 로깅
-- **Sentry** 에러 모니터링
+- **Sentry** 에러 모니터링 (8.29.0)
 - **HikariCP** 커넥션 풀
 
 ### 인증/보안
@@ -90,18 +92,25 @@ docker run -p 8000:8000 demo-app
 
 ### 데이터베이스
 - 환경별 설정 (local, sandbox, qa, prod)
-- MyBatis 매퍼: `src/main/resources/mybatis/mapper/` 디렉토리
 - 마이그레이션: 프로젝트 루트의 `/migration` 디렉토리 (V1, V2, V3 SQL 파일)
 - HikariCP 연결 풀 설정
-  - local: maximum-pool-size=10, minimum-idle=3
+  - local: maximum-pool-size=3, minimum-idle=2
+  - sandbox/qa: maximum-pool-size=10, minimum-idle=5
   - prod: maximum-pool-size=30, minimum-idle=10
+
+### Repository 패턴
+- `MybatisRepository<T>` 인터페이스 확장으로 CRUD 자동 생성
+- 조건부 쿼리: `getItemByMap()`, `getItemsByMapOrderByLimitOffset()`, `countByMap()`
+- 필터 조건: `"field:contains"`, `"field:in"`, `"field:not"` 등 연산자 지원
+- 예시: `Map.of("loginId", value, "removedFlag", false, "id:not", excludeId)`
 
 ### 공통 기능
 - 전역 예외 처리: `ApiExceptionHandler`
 - 로깅: `TraceLogger`, `LogUtils`
 - 응답 래퍼: `ApiResult`, `Result`
-- 공통 도메인: `IdCreated`, `IdCreatedUpdated`
+- 공통 도메인: `IdCreated`, `IdCreatedUpdated` (생성자/수정자 추적)
 - 열거형 처리: `GenericEnumTypeHandler`
+- Virtual Threads 기반 병렬 처리: `Executors.newVirtualThreadPerTaskExecutor()` 사용
 
 ## 개발 가이드라인
 

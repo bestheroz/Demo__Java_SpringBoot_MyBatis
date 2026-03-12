@@ -6,8 +6,8 @@ import com.p6spy.engine.spy.P6SpyOptions;
 import com.p6spy.engine.spy.appender.MessageFormattingStrategy;
 import jakarta.annotation.PostConstruct;
 import java.text.MessageFormat;
+import java.util.Locale;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.engine.jdbc.internal.FormatStyle;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
@@ -49,14 +49,20 @@ public class P6spyConfig {
       }
       if (Category.STATEMENT.getName().equals(category)) {
         if (EnvironmentUtils.isLocal()) {
-          return StringUtils.startsWithAny("create", "alter", "comment")
-              ? FormatStyle.DDL.getFormatter().format(sql)
-              : FormatStyle.HIGHLIGHT
-                  .getFormatter()
-                  .format(FormatStyle.BASIC.getFormatter().format(sql));
+          return formatBasicSql(sql);
         }
       }
       return sql;
+    }
+
+    private String formatBasicSql(final String sql) {
+      String trimmed = sql.trim().toLowerCase(Locale.ROOT);
+      if (trimmed.startsWith("create")
+          || trimmed.startsWith("alter")
+          || trimmed.startsWith("comment")) {
+        return sql;
+      }
+      return sql.replaceAll("\\s+", " ").trim();
     }
   }
 }

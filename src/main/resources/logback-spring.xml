@@ -48,8 +48,6 @@
   <logger name="org.mybatis.spring" level="INFO"/>
   <logger name="org.apache.commons.beanutils" level="INFO"/>
   <logger name="com.zaxxer.hikari" level="INFO"/>
-  <logger name="org.hibernate" level="INFO"/>
-  <logger name="org.hibernate.SQL.logStatement" level="DEBUG"/>
   <logger name="io.swagger" level="INFO"/>
   <logger name="org.apache.http" level="INFO"/>
   <logger name="com.amazonaws" level="INFO"/>

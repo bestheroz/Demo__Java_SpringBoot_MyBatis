@@ -63,15 +63,16 @@ docker run -p 8000:8000 demo-app
   - `config`: Spring 설정 클래스
 
 ### 주요 기술 스택
-- **Java 25** with Spring Boot 4.0.1
+- **Java 25** with Spring Boot 4.1.0-M2
+- **Jackson 3.0.4** (`tools.jackson`) - Spring Boot 4.1 기본 JSON 처리
 - **MyBatis** 4.0.1 + mybatis-repository 0.8.1 for ORM
 - **Virtual Threads** 활성화 (`spring.threads.virtual.enabled: true`)
-- **MySQL** 데이터베이스
-- **JWT** 인증/인가 (Auth0 java-jwt 4.5.0)
-- **Swagger/OpenAPI** API 문서화 (SpringDoc 3.0.1)
-- **Spotless** 코드 포맷팅 (Google Java Format)
-- **P6Spy** SQL 로깅
-- **Sentry** 에러 모니터링 (8.29.0)
+- **MySQL** 데이터베이스 (Connector 9.6.0)
+- **JWT** 인증/인가 (Auth0 java-jwt 4.5.1)
+- **Swagger/OpenAPI** API 문서화 (SpringDoc 3.0.2)
+- **Spotless** 코드 포맷팅 (Google Java Format, 8.3.0)
+- **P6Spy** SQL 로깅 (2.0.0)
+- **Sentry** 에러 모니터링 (8.35.0)
 - **HikariCP** 커넥션 풀
 
 ### 인증/보안

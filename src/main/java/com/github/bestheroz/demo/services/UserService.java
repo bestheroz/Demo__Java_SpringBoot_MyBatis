@@ -15,13 +15,14 @@ import com.github.bestheroz.standard.common.util.MapUtil;
 import com.github.bestheroz.standard.common.util.PasswordUtil;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Slf4j
 @Service
@@ -40,10 +41,10 @@ public class UserService {
               if (request.getId() != null) {
                 m.put("id", request.getId());
               }
-              if (StringUtils.isNotEmpty(request.getLoginId())) {
+              if (StringUtils.hasText(request.getLoginId())) {
                 m.put("loginId:contains", request.getLoginId());
               }
-              if (StringUtils.isNotEmpty(request.getName())) {
+              if (StringUtils.hasText(request.getName())) {
                 m.put("name:contains", request.getName());
               }
               if (request.getUseFlag() != null) {
@@ -187,7 +188,7 @@ public class UserService {
     }
     if (user.getToken() != null && jwtTokenProvider.issuedRefreshTokenIn3Seconds(user.getToken())) {
       return new TokenDto(jwtTokenProvider.createAccessToken(new Operator(user)), user.getToken());
-    } else if (StringUtils.equals(user.getToken(), refreshToken)) {
+    } else if (Objects.equals(user.getToken(), refreshToken)) {
       user.renewToken(jwtTokenProvider.createRefreshToken(new Operator(user)));
       this.userRepository.updateById(user, user.getId());
       return new TokenDto(jwtTokenProvider.createAccessToken(new Operator(user)), user.getToken());

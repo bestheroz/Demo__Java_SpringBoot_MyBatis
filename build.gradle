@@ -22,9 +22,7 @@ repositories {
 dependencies {
     implementation "org.springframework.boot:spring-boot-starter-web"
     implementation "org.springframework.boot:spring-boot-starter-security"
-    implementation "org.springframework.boot:spring-boot-configuration-processor"
     implementation "org.aspectj:aspectjweaver"
-    implementation "org.apache.commons:commons-lang3"
     implementation "com.mysql:mysql-connector-j:9.6.0"
     implementation "org.mybatis.spring.boot:mybatis-spring-boot-starter:4.0.1"
     implementation "com.github.gavlyukovskiy:p6spy-spring-boot-starter:2.0.0"
@@ -36,7 +34,6 @@ dependencies {
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.2"
     implementation "org.fusesource.jansi:jansi:2.4.2"
     annotationProcessor "org.projectlombok:lombok"
-    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 }
 
 tasks.withType(JavaCompile).configureEach {

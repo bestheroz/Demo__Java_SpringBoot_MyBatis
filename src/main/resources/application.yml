@@ -7,17 +7,11 @@ spring:
   servlet:
     multipart:
       enabled: false
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
-  web:
-    resources:
-      chain:
-        compressed: true
   jackson:
     serialization:
       FAIL_ON_EMPTY_BEANS: false
+    deserialization:
+      FAIL_ON_UNKNOWN_PROPERTIES: false
 springdoc:
   api-docs:
     enabled: false

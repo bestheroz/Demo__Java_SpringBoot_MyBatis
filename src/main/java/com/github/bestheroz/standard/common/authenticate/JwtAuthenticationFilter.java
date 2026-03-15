@@ -9,10 +9,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.StopWatch;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -58,10 +57,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
           REQUEST_PARAMETERS,
           request.getMethod(),
           requestURI,
-          StringUtils.defaultString(request.getQueryString()));
+          Objects.toString(request.getQueryString(), ""));
     }
 
-    StopWatch stopWatch = new StopWatch();
+    org.springframework.util.StopWatch stopWatch = new org.springframework.util.StopWatch();
     stopWatch.start();
 
     try {

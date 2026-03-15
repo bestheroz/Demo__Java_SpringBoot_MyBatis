@@ -1,11 +1,5 @@
 package com.github.bestheroz.standard.common.mybatis.handler;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.util.StdDateFormat;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -13,18 +7,19 @@ import java.sql.SQLException;
 import java.util.List;
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 public class GenericListTypeHandler<T> extends BaseTypeHandler<List<T>> {
-  private static final ObjectMapper objectMapper = new ObjectMapper();
+  private static final ObjectMapper objectMapper =
+      JsonMapper.builder().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
   private final Class<T> type;
 
   public GenericListTypeHandler(Class<T> type) {
     if (type == null) throw new IllegalArgumentException("Type argument cannot be null");
     this.type = type;
-    objectMapper.registerModule(new JavaTimeModule());
-    objectMapper.setDateFormat(new StdDateFormat().withColonInTimeZone(true));
-    objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
   }
 
   @Override
@@ -33,7 +28,7 @@ public class GenericListTypeHandler<T> extends BaseTypeHandler<List<T>> {
     try {
       String json = parameter != null ? objectMapper.writeValueAsString(parameter) : null;
       ps.setString(i, json);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new SQLException("Error converting List to JSON", e);
     }
   }
@@ -60,7 +55,7 @@ public class GenericListTypeHandler<T> extends BaseTypeHandler<List<T>> {
     try {
       return objectMapper.readValue(
           json, objectMapper.getTypeFactory().constructCollectionType(List.class, type));
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw new SQLException("Error parsing JSON to List", e);
     }
   }

@@ -5,12 +5,12 @@ import com.github.bestheroz.standard.common.enums.AuthorityEnum;
 import com.github.bestheroz.standard.common.enums.UserTypeEnum;
 import com.github.bestheroz.standard.common.security.Operator;
 import com.github.bestheroz.standard.common.util.PasswordUtil;
-import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.Column;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import lombok.*;
+import org.springframework.util.StringUtils;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -77,7 +77,7 @@ public class User extends IdCreatedUpdated {
     this.authorities = authorities;
     Instant now = Instant.now();
     this.setUpdatedBy(operator, now);
-    if (StringUtils.isNotEmpty(password)) {
+    if (StringUtils.hasText(password)) {
       this.password = PasswordUtil.getPasswordHash(password);
       this.changePasswordAt = now;
     }

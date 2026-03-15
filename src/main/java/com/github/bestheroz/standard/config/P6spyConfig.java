@@ -7,8 +7,9 @@ import com.p6spy.engine.spy.appender.MessageFormattingStrategy;
 import jakarta.annotation.PostConstruct;
 import java.text.MessageFormat;
 import java.util.Locale;
-import org.apache.commons.lang3.StringUtils;
+import java.util.Objects;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.StringUtils;
 
 @Configuration
 public class P6spyConfig {
@@ -29,7 +30,7 @@ public class P6spyConfig {
         final String prepared,
         final String sql,
         final String url) {
-      if (StringUtils.equals(sql, "select now()")) {
+      if (Objects.equals(sql, "select now()")) {
         return MessageFormat.format(
             "OperationTime: {0}ms | connectionId : {1} | {2} | readiness: {3}",
             elapsed, connectionId, category, sql);
@@ -39,13 +40,13 @@ public class P6spyConfig {
             elapsed,
             connectionId,
             category,
-            StringUtils.isEmpty(sql) ? "" : "\n" + this.formatSql(category, sql));
+            !StringUtils.hasText(sql) ? "" : "\n" + this.formatSql(category, sql));
       }
     }
 
     private String formatSql(final String category, final String sql) {
-      if (StringUtils.isEmpty(sql)) {
-        return StringUtils.EMPTY;
+      if (!StringUtils.hasText(sql)) {
+        return "";
       }
       if (Category.STATEMENT.getName().equals(category)) {
         if (EnvironmentUtils.isLocal()) {

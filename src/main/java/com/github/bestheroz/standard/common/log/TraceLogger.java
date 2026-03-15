@@ -1,14 +1,14 @@
 package com.github.bestheroz.standard.common.log;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StopWatch;
+import tools.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Aspect
@@ -31,10 +31,13 @@ public class TraceLogger {
     final Object retVal;
 
     final String signature =
-        StringUtils.remove(
-            pjp.getStaticPart().getSignature().toString(),
-            pjp.getStaticPart().getSignature().getDeclaringType().getPackageName().concat("."));
-    if (StringUtils.containsAny(signature, "HealthController", "HealthRepository")) {
+        pjp.getStaticPart()
+            .getSignature()
+            .toString()
+            .replace(
+                pjp.getStaticPart().getSignature().getDeclaringType().getPackageName().concat("."),
+                "");
+    if (signature.contains("HealthController") || signature.contains("HealthRepository")) {
       return pjp.proceed();
     }
 
@@ -46,21 +49,26 @@ public class TraceLogger {
       retVal = pjp.proceed();
 
       stopWatch.stop();
-      if (StringUtils.containsAny(signature, "Repository.", "RepositoryCustom.", ".domain.")) {
-        if (!StringUtils.contains(signature, "HealthRepository")) {
+      if (signature.contains("Repository.")
+          || signature.contains("RepositoryCustom.")
+          || signature.contains(".domain.")) {
+        if (!signature.contains("HealthRepository")) {
           log.info(STR_END_EXECUTE_TIME_FOR_REPOSITORY, signature, stopWatch.getTotalTimeMillis());
         }
       } else {
-        if (!StringUtils.contains(signature, "HealthController")) {
+        if (!signature.contains("HealthController")) {
           final String str = objectMapper.writeValueAsString(retVal);
+          final String displayStr = Objects.toString(str, "null");
+          final int strLen = str != null ? str.length() : 0;
           log.info(
               STR_END_EXECUTE_TIME,
               signature,
               stopWatch.getTotalTimeMillis(),
-              StringUtils.abbreviate(
-                  StringUtils.defaultString(str, "null"),
-                  "--skip massive text-- total length : " + StringUtils.length(str),
-                  1000));
+              displayStr.length() <= 1000
+                  ? displayStr
+                  : displayStr.substring(0, 1000)
+                      + "--skip massive text-- total length : "
+                      + strLen);
         }
       }
     } catch (final Throwable e) {

@@ -73,7 +73,8 @@
       "mcp__serena__find_referencing_symbols",
       "mcp__context7__resolve-library-id",
       "Bash(./gradlew:*)",
-      "Bash(jar tf:*)"
+      "Bash(jar tf:*)",
+      "mcp__filesystem__read_text_file"
     ],
     "deny": [
       "Bash(git push:*)",
@@ -94,5 +95,11 @@
       "ShellMonitor",
       "Bash(npx serverless deploy:*)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "context7",
+    "exa",
+    "filesystem",
+    "github"
+  ]
 }

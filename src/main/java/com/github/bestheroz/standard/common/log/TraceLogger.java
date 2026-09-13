@@ -49,7 +49,10 @@ public class TraceLogger {
       retVal = pjp.proceed();
 
       stopWatch.stop();
+      // mybatis-repository 0.10.0 부터 기본 메서드가 MybatisRepositoryBase 로 옮겨져 signature 가
+      // "MybatisRepositoryBase.xxx" 가 된다. 빠지면 아래 else 에서 반환 엔티티를 직렬화하다 예외가 난다.
       if (signature.contains("Repository.")
+          || signature.contains("RepositoryBase.")
           || signature.contains("RepositoryCustom.")
           || signature.contains(".domain.")) {
         if (!signature.contains("HealthRepository")) {

@@ -13,6 +13,7 @@ import com.github.bestheroz.standard.common.exception.RequestException400;
 import com.github.bestheroz.standard.common.security.Operator;
 import com.github.bestheroz.standard.common.util.MapUtil;
 import com.github.bestheroz.standard.common.util.PasswordUtil;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -215,12 +216,14 @@ public class AdminService {
 
   @Transactional
   public void logout(Long id) {
-    Admin admin =
-        this.adminRepository
-            .getItemById(id)
-            .orElseThrow(() -> new RequestException400(ExceptionCode.UNKNOWN_ADMIN));
-    admin.logout();
-    this.adminRepository.updateById(admin, admin.getId());
+    this.adminRepository
+        .getItemById(id)
+        .orElseThrow(() -> new RequestException400(ExceptionCode.UNKNOWN_ADMIN));
+    // 엔티티 경로(updateById)는 null 필드를 SET 에서 빼므로 token 을 NULL 로 비울 수 없다.
+    // 컬럼을 비우는 것은 맵 경로뿐이고, Map.of 는 null 값을 받지 않아 HashMap 을 쓴다.
+    Map<String, Object> updateMap = new HashMap<>();
+    updateMap.put("token", null);
+    this.adminRepository.updateMapById(updateMap, id);
   }
 
   public Boolean checkLoginId(String loginId, Long id) {

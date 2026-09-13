@@ -101,8 +101,4 @@ public class User extends IdCreatedUpdated {
     this.token = token;
     this.latestActiveAt = Instant.now();
   }
-
-  public void logout() {
-    this.token = null;
-  }
 }

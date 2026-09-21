@@ -160,3 +160,23 @@ docker run -p 8000:8000 demo-app
 - Google Java Format 사용 (Spotless 플러그인)
 - Lombok 어노테이션 활용
 - 한글 주석 허용
+
+## CLAUDE.md 관리 규칙
+- 이 파일은 200줄 이하 유지. 매 세션 필요한 내용만 둔다: 빌드/테스트 명령, 전역 컨벤션, 도메인 간 의존 규칙, 함정과 그 이유
+- 코드에서 유추 가능한 내용(디렉터리 구조, 의존성 목록, 아키텍처 개요)은 쓰지 않는다
+- 지시는 검증 가능한 수준으로 구체적으로 쓴다 (X "포맷 잘 맞춰라" / O "2-space 들여쓰기")
+- 특정 도메인/경로에만 해당하는 규칙은 이 파일에 넣지 않는다
+  - 도메인이 단일 폴더로 분리돼 있으면 → 해당 폴더의 CLAUDE.md
+  - 여러 폴더에 흩어져 있으면 → `.claude/rules/<topic>.md` + `paths` frontmatter
+  - 다단계 절차는 → 스킬
+- 하위 CLAUDE.md 와 rules 에는 루트 규칙을 재진술하지 않는다. 충돌/중복 발견 시 사용자에게 알린다
+- 도메인 규칙을 분리하면 아래 "도메인 인덱스"에 한 줄 추가한다
+- 지시 파일을 추가/수정할 때는 변경 전 사용자에게 위치와 내용을 먼저 제안한다
+
+## 도메인 인덱스
+<!-- 형식: `경로/` — 한 줄 설명, 규칙 파일 위치 -->
+- `src/main/java/com/github/bestheroz/demo/` — Admin·User·Notice 비즈니스 도메인. 계층별 폴더에 흩어져 있어 분리 시 `.claude/rules/` + paths. 규칙 파일 없음
+- `src/main/java/com/github/bestheroz/standard/` — 인증·예외·응답·MyBatis 공통 프레임워크. 단일 폴더라 분리 시 해당 폴더 CLAUDE.md. 규칙 파일 없음
+- `migration/` — MySQL 스키마 마이그레이션 SQL. 규칙 파일 없음
+- `gradle/`, `build.gradle` — 버전 카탈로그·사전 릴리스 선체험 정책. 현재 루트 "의존성 관리" 섹션
+- `.github/workflows/` — 테스트·배포·버전 동기화 CI. 규칙 파일 없음
